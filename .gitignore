@@ -1,0 +1,7 @@
+*.json
+*.csv
+*.pdf
+*.jpg
+*.png
+apikey
+\#* # Emacs backup files

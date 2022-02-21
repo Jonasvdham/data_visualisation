@@ -1,0 +1,51 @@
+#+TITLE: Explainer
+#+AUTHOR: Jonas van der Ham | MSc MADE
+#+EMAIL: Jonasvdham@gmail.com
+#+DATE: Monday, 21 February 2022
+#+STARTUP: showall
+#+PROPERTY: header-args :exports both :session exp :cache no
+:PROPERTIES:
+#+OPTIONS: ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [logo, color, author]
+#+LATEX_HEADER: \insertauthor
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[style=ieee, citestyle=numeric-comp, isbn=false]{biblatex}
+#+LATEX_HEADER: \addbibresource{~/made/bibliography/references.bib}
+#+LATEX_HEADER: \setminted{bgcolor=WhiteSmoke}
+#+OPTIONS: toc:nil
+:END:
+
+* Installs
+
+- vue cli
+
+
+* File struct
+
+node modules -> packages
+src -> code
+
+<template></> - html code
+<script>      - script
+<style>       - css
+
+** app.view
+
+'main' view
+
+** Components
+
+Seperate visualisations
+
+** Store
+Datasets, etc.
+
+* Webserver
+'npm run serve'
+localhost:8080 (check with WSL)
+
+* animations
+
+- use ffmpeg

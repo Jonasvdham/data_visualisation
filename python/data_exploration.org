@@ -1,0 +1,96 @@
+#+TITLE: Testing inline plots
+#+AUTHOR: Jonas van der Ham | MSc MADE
+#+EMAIL: Jonasvdham@gmail.com
+#+DATE: Monday, 14 February 2022
+#+STARTUP: showall
+#+PROPERTY: header-args :exports both :session plot :cache no
+:PROPERTIES:
+#+OPTIONS: ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [logo, color, author]
+#+LATEX_HEADER: \insertauthor
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[style=ieee, citestyle=numeric-comp, isbn=false]{biblatex}
+#+LATEX_HEADER: \addbibresource{~/made/bibliography/references.bib}
+#+LATEX_HEADER: \setminted{bgcolor=WhiteSmoke}
+#+OPTIONS: toc:nil
+:END:
+
+* Imports
+
+#+begin_src python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+#+end_src
+
+#+RESULTS:
+
+#+begin_src python
+x = [i+1 for i in range(10)]
+y = np.random.normal(size=10)
+#+end_src
+
+#+RESULTS:
+
+#+begin_src python :results file
+plt.plot(x, y)
+plt.savefig("test.png")
+"test.png"
+#+end_src
+
+
+#+RESULTS:
+[[file:test.png]]
+
+#+begin_src python :results file
+import plotly.express as px
+df = px.data.iris()
+fig = px.scatter(df, x="sepal_width", y="sepal_length", color="species",
+                 size='petal_length', hover_data=['petal_width'])
+fig.show()
+#+end_src
+
+#+RESULTS:
+[[file:None]]
+
+
+#+begin_src python
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+import plotly.express as px
+
+df = px.data.iris()
+
+app = dash.Dash(__name__)
+
+app.layout = html.Div([
+    dcc.Graph(id="scatter-plot"),
+    html.P("Petal Width:"),
+    dcc.RangeSlider(
+        id='range-slider',
+        min=0, max=2.5, step=0.1,
+        marks={0: '0', 2.5: '2.5'},
+        value=[0.5, 2]
+    ),
+])
+
+@app.callback(
+    Output("scatter-plot", "figure"),
+    [Input("range-slider", "value")])
+def update_bar_chart(slider_range):
+    low, high = slider_range
+    mask = (df['petal_width'] > low) & (df['petal_width'] < high)
+    fig = px.scatter(
+        df[mask], x="sepal_width", y="sepal_length",
+        color="species", size='petal_length',
+        hover_data=['petal_width'])
+    return fig
+
+app.run_server(debug=True)
+#+end_src
+
+#+RESULTS:
