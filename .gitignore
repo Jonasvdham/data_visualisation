@@ -3,5 +3,8 @@
 *.pdf
 *.jpg
 *.png
+*.gif
+*.mp4
+*.svg
 apikey
 \#* # Emacs backup files
