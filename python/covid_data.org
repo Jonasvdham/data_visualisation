@@ -157,7 +157,6 @@ Let's try it on NL COVID data:
 #+begin_src python :results none
 # Plot parameters
 fig, ax = plt.subplots()
-line, = ax.plot([], [], 'k-', label = 'NL - new covid cases', color = 'blue')
 legend = ax.legend(loc='upper left',frameon=False)
 plt.setp(legend.get_texts(), color='white')
 ax.margins(0.05)
@@ -174,9 +173,6 @@ def init():
     return line,
 
 def animate(i):
-    # Args are the incoming value that are animated
-    #animate.counter += 1
-    #i = animate.counter
 
     xdata = x[0:i+1]
     ydata = y[0:i+1]
@@ -199,22 +195,92 @@ def animate(i):
 
     return line,
 
-animate.counter = 0
-
-def frames1():
-
-    # Generating time variable
-    target_time = datetime.now()
-    while True:
-        # Add new time + 60 seconds
-        target_time = target_time + timedelta(seconds=60)
-        x = target_time
-        y = random.randint(250,450)/10
-        yield (x,y)
-        time.sleep(random.randint(2,5))
-
 anim = animation.FuncAnimation(fig, animate, init_func=init,frames=iter(range(nl.shape[0])))
 
 plt.show()
 anim.save('NL_new_cases.gif',writer='imagemagick')
 #+end_src
+
+Similarly, plotting Italy and the Netherlands in the same graph:
+
+#+begin_src python :results none
+# Plot parameters
+fig, ax = plt.subplots()
+legend = ax.legend(loc='upper left',frameon=False)
+plt.setp(legend.get_texts(), color='white')
+ax.margins(0.05)
+ax.grid(True, which='both', color = 'grey')
+
+lines = []
+lobj1 = ax.plot([], [], 'k-', label = 'Italy', color = 'orange'),
+lobj2 = ax.plot([], [], 'k-', label = 'Netherlands', color = 'blue')
+lines.append(lobj1)
+lines.append(lobj2)
+
+# Creating data variables
+shape_it = df[df['location']=='Italy'].shape
+x_it = [(pd.to_datetime(
+    df[
+        df['location']=='Italy'
+    ]['date']
+).iloc[0].to_pydatetime()) for i in range(shape_it[0])]
+y_it = list(df[df['location']=='Italy']['new_cases'])
+
+shape_nl = df[df['location']=='Netherlands'].shape
+x_nl = [(pd.to_datetime(
+    df[
+        df['location']=='Netherlands'
+    ]['date']
+).iloc[0].to_pydatetime()) for i in range(shape_nl[0])]
+y_nl = list(df[df['location']=='Italy']['new_cases'])
+
+def init():
+    for lnum, line in enumerate(lines):
+        if lnum == 0:
+            line.set_data(x_it[:1],y_it[:1])
+            line.axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+        elif lnum == 1:
+            line.set_data(x_nl[:1],y_nl[:1])
+            line.axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+    return lines
+
+def animate(i):
+
+    it_xdata = x[0:i+1]
+    it_ydata = y[0:i+1]
+
+    if i > 26:
+        nl_xdata = x[0:i-26]
+        nl_ydata = y[0:i-26]
+
+    for lnum, line in enumerate(lines):
+        if lnum == 0:
+            line.set_data(it_xdata, it_ydata)
+        elif lnum == 1 & i > 26:
+            line.set_data(nl_xdata, nl_ydata)
+
+    plt.title('Number of new COVID-19 cases', color = 'grey')
+    plt.ylabel("Number of cases", color ='grey')
+    plt.xlabel("Time", color = 'grey')
+
+    ax.set_facecolor('black')
+    ax.xaxis.label.set_color('grey')
+    ax.tick_params(axis='x', colors='grey')
+    ax.yaxis.label.set_color('grey')
+    ax.tick_params(axis='y', colors='grey')
+
+    ax.relim()
+    ax.autoscale()
+
+    return lines
+
+anim = animation.FuncAnimation(fig, animate, init_func=init,frames=iter(range(shape_it[0])))
+
+plt.show()
+anim.save('IT_NL_new_cases.gif',writer='imagemagick')
+#+end_src
+
+* TODO fix
+
+Fix by just filtering data from the start of NL first so we have both graphs
+start at the same time and no weird iterations etc.
