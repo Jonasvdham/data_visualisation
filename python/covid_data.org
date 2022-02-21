@@ -1,0 +1,220 @@
+#+TITLE: COVID data exploration
+#+AUTHOR: Jonas van der Ham | MSc MADE
+#+EMAIL: Jonasvdham@gmail.com
+#+DATE: Monday, 21 February 2022
+#+STARTUP: showall
+#+PROPERTY: header-args :exports both :session covid :cache no
+:PROPERTIES:
+#+OPTIONS: ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [logo, color, author]
+#+LATEX_HEADER: \insertauthor
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[style=ieee, citestyle=numeric-comp, isbn=false]{biblatex}
+#+LATEX_HEADER: \addbibresource{~/made/bibliography/references.bib}
+#+LATEX_HEADER: \setminted{bgcolor=WhiteSmoke}
+#+OPTIONS: toc:nil
+:END:
+
+* Imports
+
+#+begin_src python :results none
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.dates as mdates
+#+end_src
+
+* First exploration ECDC data
+
+#+begin_src python :results none
+url = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
+df = pd.read_csv(url)
+cols = list(df.columns)
+print(df.shape)
+len(df.countriesAndTerritories.unique())
+#+end_src
+
+(61900, 12) df, including 214 different countries/territories
+
+Let's check what the range of available dates are
+
+#+begin_src python :results none
+df['datetime'] = pd.to_datetime(df['dateRep'], format="%d/%m/%Y")
+print(df.datetime.min(), df.datetime.max())
+#+end_src
+
+From 2019-12-31 to 2020-12-14
+
+* OurWorldInData Complete dataset
+
+[[https://ourworldindata.org/coronavirus][Inspiration]]
+
+Actually OurWorldInData has a significantly more complete dataset with more
+dates and more statistics available at
+https://github.com/owid/covid-19-data/tree/master/public/data.
+
+I will use this dataset
+
+#+begin_src python :results none
+df = pd.read_csv("~/data_visualisation/owid-covid-data.csv")
+cols = list(df.columns)
+#+end_src
+
+#+begin_src python :results none
+len(df.iso_code.unique())
+#+end_src
+
+#+begin_src python :results none
+nl = df[df['location']=='Netherlands']
+nl['datetime'] = pd.to_datetime(nl['date'], format="%Y-%m-%d")
+#+end_src
+
+There is a total of 238 'regions' represented here. Most are countries but some
+are continents or OWID defined regions like 'high-income'.
+
+#+begin_src python :results file
+# Plot parameters
+fig, ax = plt.subplots()
+line, = ax.plot([], [], 'k-', label = 'NL - new covid cases', color = 'blue')
+legend = ax.legend(loc='upper left',frameon=False)
+plt.setp(legend.get_texts(), color='white')
+ax.margins(0.05)
+ax.grid(True, which='both', color = 'grey')
+
+# Creating data variables
+x = [(nl['datetime']).iloc[i].to_pydatetime() for i in range(nl.shape[0])]
+y = list(nl.new_cases)
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+ax.xaxis.set_major_locator(mdates.DayLocator(interval=200))
+ax.xaxis.label.set_color('grey')
+ax.set_facecolor('black')
+
+ax.tick_params(axis='x', colors='grey')
+ax.yaxis.label.set_color('grey')
+ax.tick_params(axis='y', colors='grey')
+
+ax.plot(x,y)
+
+ax.relim()
+ax.autoscale()
+
+fig.savefig('nl_new_cases.png')
+plt.close()
+#+end_src
+
+* Animations
+I really like this animation example of a [[https://towardsdatascience.com/animations-with-matplotlib-d96375c5442c][growing coil]]
+#+begin_src python :results none
+plt.style.use('dark_background')
+
+fig = plt.figure()
+ax = plt.axes(xlim=(-50, 50), ylim=(-50, 50))
+line, = ax.plot([], [], lw=2)
+
+# initialization function
+def init():
+        # creating an empty plot/frame
+        line.set_data([], [])
+        return line,
+
+# lists to store x and y axis points
+xdata, ydata = [], []
+
+# animation function
+def animate(i):
+        # t is a parameter
+        t = 0.1*i
+
+        # x, y values to be plotted
+        x = t*np.sin(t)
+        y = t*np.cos(t)
+
+        # appending new points to x, y axes points list
+        xdata.append(x)
+        ydata.append(y)
+        line.set_data(xdata, ydata)
+        return line,
+
+# setting a title for the plot
+plt.title('Creating a growing coil with matplotlib!')
+# hiding the axis details
+plt.axis('off')
+
+# call the animator
+anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                                        frames=500, interval=200, blit=True)
+
+# save the animation as mp4 video file
+anim.save('coil.gif', writer='imagemagick')
+#+end_src
+
+Let's try it on NL COVID data:
+
+#+begin_src python :results none
+# Plot parameters
+fig, ax = plt.subplots()
+line, = ax.plot([], [], 'k-', label = 'NL - new covid cases', color = 'blue')
+legend = ax.legend(loc='upper left',frameon=False)
+plt.setp(legend.get_texts(), color='white')
+ax.margins(0.05)
+ax.grid(True, which='both', color = 'grey')
+
+# Creating data variables
+x = [(nl['datetime']).iloc[i].to_pydatetime() for i in range(nl.shape[0])]
+y = list(nl.new_cases)
+
+def init():
+    line.set_data(x[:1],y[:1])
+    line.axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+    #line.axes.xaxis.set_major_locator(mdates.DayLocator(interval=200))
+    return line,
+
+def animate(i):
+    # Args are the incoming value that are animated
+    #animate.counter += 1
+    #i = animate.counter
+
+    xdata = x[0:i+1]
+    ydata = y[0:i+1]
+
+    line.set_data(xdata, ydata)
+    line.set_color("red")
+
+    plt.title('Number of new COVID-19 cases in NL', color = 'grey')
+    plt.ylabel("Number of cases", color ='grey')
+    plt.xlabel("Time", color = 'grey')
+
+    ax.set_facecolor('black')
+    ax.xaxis.label.set_color('grey')
+    ax.tick_params(axis='x', colors='grey')
+    ax.yaxis.label.set_color('grey')
+    ax.tick_params(axis='y', colors='grey')
+
+    ax.relim()
+    ax.autoscale()
+
+    return line,
+
+animate.counter = 0
+
+def frames1():
+
+    # Generating time variable
+    target_time = datetime.now()
+    while True:
+        # Add new time + 60 seconds
+        target_time = target_time + timedelta(seconds=60)
+        x = target_time
+        y = random.randint(250,450)/10
+        yield (x,y)
+        time.sleep(random.randint(2,5))
+
+anim = animation.FuncAnimation(fig, animate, init_func=init,frames=iter(range(nl.shape[0])))
+
+plt.show()
+anim.save('NL_new_cases.gif',writer='imagemagick')
+#+end_src
