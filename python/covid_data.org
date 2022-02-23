@@ -220,6 +220,9 @@ lines = [
 
 legend = ax.legend(loc='upper left',frameon=False)
 plt.setp(legend.get_texts(), color='white')
+plt.title('Number of new COVID-19 cases', color = 'grey')
+plt.xlabel("Date (month, year)", color = 'grey')
+plt.ylabel("Number of cases", color ='grey')
 
 # Creating data variables
 shape_it = df[df['location']=='Italy'].shape
@@ -242,10 +245,10 @@ def init():
     for lnum, line in enumerate(lines):
         if lnum == 0:
             line[0].set_data(x_it[:1],y_it[:1])
-            line[0].axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+            line[0].axes.xaxis.set_major_formatter(mdates.DateFormatter(""))#"%d-%m-%Y"))
         elif lnum == 1:
             line[0].set_data(x_nl[:1],y_nl[:1])
-            line[0].axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+            line[0].axes.xaxis.set_major_formatter(mdates.DateFormatter("%m-'%y"))
     return lines
 
 def animate(i):
@@ -260,10 +263,6 @@ def animate(i):
             line[0].set_data(it_xdata, it_ydata)
         elif n==1:
             line[0].set_data(nl_xdata, nl_ydata)
-
-    plt.title('Number of new COVID-19 cases', color = 'grey')
-    plt.ylabel("Number of cases", color ='grey')
-    plt.xlabel("Time", color = 'grey')
 
     ax.set_facecolor('black')
     ax.xaxis.label.set_color('grey')
