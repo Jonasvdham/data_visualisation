@@ -26,6 +26,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.dates as mdates
+import seaborn as sns
 #+end_src
 
 * First exploration ECDC data
@@ -281,3 +282,104 @@ anim = animation.FuncAnimation(fig, animate, interval=60, init_func=init,frames=
 plt.show()
 anim.save('IT_NL_new_cases.gif',writer='imagemagick')
 #+end_src
+
+* Seaborn
+
+** Example
+
+This seaborn example sparked my interest.
+
+#+begin_src python :results file
+sns.set_theme(style="dark")
+flights = sns.load_dataset("flights")
+
+# Plot each year's time series in its own facet
+g = sns.relplot(
+    data=flights,
+    x="month", y="passengers", col="year", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend=False,
+)
+
+# Iterate over each subplot to customize further
+for year, ax in g.axes_dict.items():
+
+    # Add the title as an annotation within the plot
+    ax.text(.8, .85, year, transform=ax.transAxes, fontweight="bold")
+
+    # Plot every year's time series in the background
+    sns.lineplot(
+        data=flights, x="month", y="passengers", units="year",
+        estimator=None, color=".7", linewidth=1, ax=ax,
+    )
+
+# Reduce the frequency of the x axis ticks
+ax.set_xticks(ax.get_xticks()[::2])
+
+# Tweak the supporting aspects of the plot
+g.set_titles("")
+g.set_axis_labels("", "Passengers")
+g.tight_layout()
+g.fig.savefig("seaborn_example.png")
+"seaborn_example.png"
+#+end_src
+
+#+RESULTS:
+[[file:seaborn_example.png]]
+
+** COVID implementation
+
+Let's try to implement it for 3 years of COVID data - maybe for some different
+countries?
+
+*** Preprocessing
+#+begin_src python :results none
+df['month'] = pd.to_datetime(df['date'], format="%Y-%m-%d").apply(lambda x: x.strftime("%B"))
+df['year'] = df['date'].str[:4].astype('int')
+df['day'] = df['date'].str[-2:].astype('int')
+#+end_src
+
+#+begin_src python :results none
+sns.set_theme(style="dark")
+
+# Plot each year's time series in its own facet
+g = sns.relplot(
+    data=df[(df['location']=='Netherlands')],
+    x="day", y="new_cases", col="month", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend="brief",
+)
+
+# Iterate over each subplot to customize further
+for month, ax in g.axes_dict.items():
+
+    # Add the title as an annotation within the plot
+    ax.text(.8, .85, month, transform=ax.transAxes, fontweight="bold")
+    ax.axes.set_xlim(0, 30)
+
+# Tweak the supporting aspects of the plot
+g.set_titles("")
+g.set_axis_labels("Day of the month", "New cases")
+g.set(yscale="log")
+g.tight_layout()
+for line in g.legend.get_lines():
+    line.set_linewidth(4.0)
+g.fig.suptitle("Daily COVID-19 cases in the Netherlands")
+g.fig.subplots_adjust(top=0.92)
+g.fig.savefig("NL_infections_per_month.svg")
+#+end_src
+
+
+
+
+
+* TODO Links
+
+animated plots
+https://pythonforundergradengineers.com/live-plotting-with-matplotlib.html
+
+basic plotly
+https://plotly.com/python/line-and-scatter/
+
+dash interactive dashboard
+https://dash.gallery/dash-opioid-epidemic/
