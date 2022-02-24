@@ -80,28 +80,30 @@ are continents or OWID defined regions like 'high-income'.
 #+begin_src python :results file
 # Plot parameters
 fig, ax = plt.subplots()
-line, = ax.plot([], [], 'k-', label = 'NL - new covid cases', color = 'blue')
+line, = ax.plot([], [], '-', label = 'NL - new covid cases', color = '#1f77b4')
 legend = ax.legend(loc='upper left',frameon=False)
-plt.setp(legend.get_texts(), color='white')
+plt.setp(legend.get_texts(), color='black')
 ax.margins(0.05)
-ax.grid(True, which='both', color = 'grey')
+ax.grid(True, which='both', color = 'gainsboro')
 
 # Creating data variables
 x = [(nl['datetime']).iloc[i].to_pydatetime() for i in range(nl.shape[0])]
 y = list(nl.new_cases)
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
 ax.xaxis.set_major_locator(mdates.DayLocator(interval=200))
-ax.xaxis.label.set_color('grey')
-ax.set_facecolor('black')
+ax.xaxis.label.set_color('black')
+ax.set_facecolor('lightgrey')
 
-ax.tick_params(axis='x', colors='grey')
-ax.yaxis.label.set_color('grey')
-ax.tick_params(axis='y', colors='grey')
+ax.tick_params(axis='x', colors='black')
+ax.axes.set_ylabel("test", labelpad=1.0)
+ax.yaxis.label.set_color('black')
+ax.tick_params(axis='y', colors='black')
 
 ax.plot(x,y)
 
 ax.relim()
 ax.autoscale()
+plt.tight_layout()
 
 fig.savefig('nl_new_cases.png')
 plt.close()
@@ -212,18 +214,19 @@ Similarly, plotting Italy and the Netherlands in the same graph:
 # Plot parameters
 fig, ax = plt.subplots()
 ax.margins(0.05)
-ax.grid(True, which='both', color = 'grey')
+ax.set_facecolor('silver')
+ax.grid(True, which='both', color = 'gainsboro')
 
 lines = [
-    ax.plot([], [], label = 'Italy', color = 'orange'),
-    ax.plot([], [], label = 'Netherlands', color = 'blue')
+    ax.plot([], [], label = 'Italy', color = 'coral'),
+    ax.plot([], [], label = 'Netherlands', color = 'c')
     ]
 
 legend = ax.legend(loc='upper left',frameon=False)
-plt.setp(legend.get_texts(), color='white')
-plt.title('Number of new COVID-19 cases', color = 'grey')
-plt.xlabel("Date (month, year)", color = 'grey')
-plt.ylabel("Number of cases", color ='grey')
+plt.setp(legend.get_texts(), color='black')
+plt.title('Number of new COVID-19 cases', color = 'black')
+plt.xlabel("Date (month, year)", color = 'black')
+plt.ylabel("Number of cases", color ='black')
 
 # Creating data variables
 shape_it = df[df['location']=='Italy'].shape
@@ -265,13 +268,13 @@ def animate(i):
         elif n==1:
             line[0].set_data(nl_xdata, nl_ydata)
 
-    ax.set_facecolor('black')
-    ax.xaxis.label.set_color('grey')
+    ax.xaxis.label.set_color('black')
     if i % 2 == 0:
         ax.xaxis.label.set_visible(False)
-    ax.tick_params(axis='x', colors='grey')
-    ax.yaxis.label.set_color('grey')
-    ax.tick_params(axis='y', colors='grey')
+    ax.tick_params(axis='x', colors='black')
+    ax.yaxis.label.set_color('black')
+    ax.tick_params(axis='y', colors='black')
+    #plt.tight_layout()
     ax.relim()
     ax.autoscale()
 
@@ -280,7 +283,7 @@ def animate(i):
 anim = animation.FuncAnimation(fig, animate, interval=60, init_func=init,frames=[i for i in range(shape_it[0])])
 
 plt.show()
-anim.save('IT_NL_new_cases.gif',writer='imagemagick')
+anim.save('IT_NL_new_cases_v2.gif',writer='imagemagick')
 #+end_src
 
 * Seaborn
@@ -339,6 +342,7 @@ df['year'] = df['date'].str[:4].astype('int')
 df['day'] = df['date'].str[-2:].astype('int')
 #+end_src
 
+*** Relplot
 #+begin_src python :results none
 sns.set_theme(style="dark")
 
@@ -369,8 +373,86 @@ g.fig.subplots_adjust(top=0.92)
 g.fig.savefig("NL_infections_per_month.svg")
 #+end_src
 
+#+begin_src python :results none
+sns.set_theme(style="dark")
+
+# Plot each year's time series in its own facet
+g = sns.relplot(
+    data=df[(df['location']=='Netherlands')],
+    x="day", y="hosp_patients_per_million", col="month", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend="brief",
+)
+
+# Iterate over each subplot to customize further
+for month, ax in g.axes_dict.items():
+    ax.set_zorder(0)
+    # Add the title as an annotation within the plot
+    ax.text(.8, .85, month, transform=ax.transAxes, fontweight="bold", zorder=6)
+    ax.axes.set_xlim(0, 30)
+
+# Tweak the supporting aspects of the plot
+g.set_titles("")
+g.set_axis_labels("Day of the month", "count per million")
+g.tight_layout()
+for line in g.legend.get_lines():
+    line.set_linewidth(4.0)
+g.fig.suptitle("COVID-19 Hospital patients per million in the Netherlands")
+g.fig.subplots_adjust(top=0.92)
+g.fig.savefig("NL_hospitalisations_per_month.svg")
+#+end_src
+
+*** TODO Scatterplot - Fix labels
+
+Create bins for GDP
+
+#+begin_src python :results none
+bins = [0, 4500, 15000, 30000, 80000, 120000]
+labels = ["$0-$4500", "$4500-$15.000", "$15.000-$30.000", "$30.000-$80.000", "$80.000-$117.000"]
+df_scat = df[["location", "gdp_per_capita", 'people_vaccinated_per_hundred', 'hosp_patients_per_million']].groupby("location").last().reset_index().dropna()
+#df['gdp_binned'] = pd.cut(df['gdp_per_capita'], bins=bins, labels=labels)
+#+end_src
+
+#+begin_src python :results none
+sns.set_theme(style="whitegrid")
+
+# Draw a scatter plot while assigning point colors and sizes to different
+# variables in the dataset
+f, ax = plt.subplots(figsize=(10, 10))
+sns.despine(f, left=True, bottom=True)
+g = sns.scatterplot(x='people_vaccinated_per_hundred', y='hosp_patients_per_million',
+                hue='location', alpha=0.6,
+                palette="inferno", linewidth=0,
+                data=df_scat[df_scat['location']!='Bulgaria'], ax=ax, legend=False)
 
 
+def label_point(x, y, val, ax):
+    a = pd.concat({'x': x, 'y': y, 'val': val}, axis=1)
+    for i, point in a.iterrows():
+        ax.text(point['x']+.03, point['y'], str(point['val']), size='small')
+
+label_point(df_scat['people_vaccinated_per_hundred'], df_scat['hosp_patients_per_million'], df_scat['location'], ax)
+g.set_xlabel("Number of people vaccinated per hundred")
+g.set_ylabel("Number of people hospitalised per million")
+g.set_title("COVID-19 hospitalisations as related to number of vaccinations ")
+
+f.savefig("hosp_vs_vacc_scatter_noNaNs.png")
+#+end_src
+
+
+#+begin_src python :results none
+sns.set_theme(style="whitegrid")
+
+# Draw a scatter plot while assigning point colors and sizes to different
+# variables in the dataset
+f, ax = plt.subplots(figsize=(10, 10))
+sns.despine(f, left=True, bottom=True)
+sns.scatterplot(x='people_vaccinated_per_hundred', y='hosp_patients_per_million',
+                hue='gdp_binned', alpha=0.5,
+                palette="PuRd", linewidth=0,
+                data=df[~df['continent'].isna()], ax=ax)
+f.savefig("GLB_hospitalisation_vs_vacc_scatter.png")
+#+end_src
 
 
 * TODO Links
