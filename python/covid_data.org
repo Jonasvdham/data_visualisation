@@ -81,31 +81,34 @@ are continents or OWID defined regions like 'high-income'.
 # Plot parameters
 fig, ax = plt.subplots()
 line, = ax.plot([], [], '-', label = 'NL - new covid cases', color = '#1f77b4')
-legend = ax.legend(loc='upper left',frameon=False)
+legend = ax.legend(loc='upper left',frameon=True)
+fig.set_size_inches(13, 6.5)
 plt.setp(legend.get_texts(), color='black')
 ax.margins(0.05)
-ax.grid(True, which='both', color = 'gainsboro')
+ax.grid(True, which='both', color = 'white')
 
 # Creating data variables
 x = [(nl['datetime']).iloc[i].to_pydatetime() for i in range(nl.shape[0])]
 y = list(nl.new_cases)
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
-ax.xaxis.set_major_locator(mdates.DayLocator(interval=200))
+ax.xaxis.set_major_locator(mdates.DayLocator(interval=100))
 ax.xaxis.label.set_color('black')
 ax.set_facecolor('lightgrey')
 
+fig.suptitle("Daily new number of recorded COVID-19 cases in the Netherlands")
 ax.tick_params(axis='x', colors='black')
-ax.axes.set_ylabel("test", labelpad=1.0)
+ax.axes.set_xlabel("Date", labelpad=6.0)
+ax.axes.set_ylabel("Number of cases", labelpad=1.0)
 ax.yaxis.label.set_color('black')
 ax.tick_params(axis='y', colors='black')
-
+ax.set_yscale('log')
 ax.plot(x,y)
 
-ax.relim()
-ax.autoscale()
+#ax.relim()
+#ax.autoscale()
 plt.tight_layout()
 
-fig.savefig('nl_new_cases.png')
+fig.savefig('nl_new_cases_v2.svg')
 plt.close()
 #+end_src
 
@@ -354,6 +357,13 @@ g = sns.relplot(
     col_wrap=3, height=2, aspect=1.5, legend="brief",
 )
 
+sns.relplot(
+    data=df[(df['location']=='Netherlands')],
+    x="day", y='hosp_patients', col="month", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend="brief", ax=g.axes.twinx()
+)
+
 # Iterate over each subplot to customize further
 for month, ax in g.axes_dict.items():
 
@@ -370,7 +380,7 @@ for line in g.legend.get_lines():
     line.set_linewidth(4.0)
 g.fig.suptitle("Daily COVID-19 cases in the Netherlands")
 g.fig.subplots_adjust(top=0.92)
-g.fig.savefig("NL_infections_per_month.svg")
+g.fig.savefig("NL_infections_per_month.png")
 #+end_src
 
 #+begin_src python :results none
@@ -402,6 +412,27 @@ g.fig.subplots_adjust(top=0.92)
 g.fig.savefig("NL_hospitalisations_per_month.svg")
 #+end_src
 
+*** Line graph
+
+#+begin_src python :results none
+#sns.set_theme(style="darkgrid")
+
+# specify plot layouts with different width using subplots()
+f, ax = plt.subplots(1,1,
+                      figsize=(8,6))
+sns.lineplot(data=nl,
+   x="datetime", y="new_cases",
+   palette="crest", linewidth=2, ax=ax)
+
+# f.yscale("log")
+# f.xticks(["2020-03-01", "2021-01-01", "2022-01-01"])
+f.tight_layout()
+
+# Plot the responses for different events and regions
+f.savefig("NL_infect_hosp_timeline.png")
+plt.close('all')
+#+end_src
+
 *** TODO Scatterplot - Fix labels
 
 Create bins for GDP
@@ -410,7 +441,7 @@ Create bins for GDP
 bins = [0, 4500, 15000, 30000, 80000, 120000]
 labels = ["$0-$4500", "$4500-$15.000", "$15.000-$30.000", "$30.000-$80.000", "$80.000-$117.000"]
 df_scat = df[["location", "gdp_per_capita", 'people_vaccinated_per_hundred', 'hosp_patients_per_million']].groupby("location").last().reset_index().dropna()
-#df['gdp_binned'] = pd.cut(df['gdp_per_capita'], bins=bins, labels=labels)
+df['gdp_binned'] = pd.cut(df['gdp_per_capita'], bins=bins, labels=labels)
 #+end_src
 
 #+begin_src python :results none
@@ -420,10 +451,12 @@ sns.set_theme(style="whitegrid")
 # variables in the dataset
 f, ax = plt.subplots(figsize=(10, 10))
 sns.despine(f, left=True, bottom=True)
-g = sns.scatterplot(x='people_vaccinated_per_hundred', y='hosp_patients_per_million',
+g = sns.scatterplot(x='date', y='hosp_patients_per_million',
                 hue='location', alpha=0.6,
                 palette="inferno", linewidth=0,
-                data=df_scat[df_scat['location']!='Bulgaria'], ax=ax, legend=False)
+                data=df,
+                    #df_scat[df_scat['location']!='Bulgaria'],
+                    ax=ax, legend=False)
 
 
 def label_point(x, y, val, ax):
@@ -431,7 +464,7 @@ def label_point(x, y, val, ax):
     for i, point in a.iterrows():
         ax.text(point['x']+.03, point['y'], str(point['val']), size='small')
 
-label_point(df_scat['people_vaccinated_per_hundred'], df_scat['hosp_patients_per_million'], df_scat['location'], ax)
+#label_point(df_scat['people_vaccinated_per_hundred'], df_scat['hosp_patients_per_million'], #df_scat['location'], ax)
 g.set_xlabel("Number of people vaccinated per hundred")
 g.set_ylabel("Number of people hospitalised per million")
 g.set_title("COVID-19 hospitalisations as related to number of vaccinations ")
