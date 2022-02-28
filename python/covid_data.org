@@ -158,6 +158,7 @@ Let's try it on NL COVID data:
 # Plot parameters
 fig, ax = plt.subplots()
 legend = ax.legend(loc='upper left',frameon=False)
+line, = ax.plot([], [], lw=2)
 plt.setp(legend.get_texts(), color='white')
 ax.margins(0.05)
 ax.grid(True, which='both', color = 'grey')
