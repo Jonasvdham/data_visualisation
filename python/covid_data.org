@@ -26,6 +26,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.dates as mdates
+import seaborn as sns
 #+end_src
 
 * First exploration ECDC data
@@ -79,32 +80,40 @@ are continents or OWID defined regions like 'high-income'.
 #+begin_src python :results file
 # Plot parameters
 fig, ax = plt.subplots()
-line, = ax.plot([], [], 'k-', label = 'NL - new covid cases', color = 'blue')
-legend = ax.legend(loc='upper left',frameon=False)
-plt.setp(legend.get_texts(), color='white')
+line, = ax.plot([], [], '-', label = 'NL - new covid cases', color = '#1f77b4')
+legend = ax.legend(loc='upper left',frameon=True)
+fig.set_size_inches(13, 6.5)
+plt.setp(legend.get_texts(), color='black')
 ax.margins(0.05)
-ax.grid(True, which='both', color = 'grey')
+ax.grid(True, which='both', color = 'white')
 
 # Creating data variables
 x = [(nl['datetime']).iloc[i].to_pydatetime() for i in range(nl.shape[0])]
 y = list(nl.new_cases)
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
-ax.xaxis.set_major_locator(mdates.DayLocator(interval=200))
-ax.xaxis.label.set_color('grey')
-ax.set_facecolor('black')
+ax.xaxis.set_major_locator(mdates.DayLocator(interval=100))
+ax.xaxis.label.set_color('black')
+ax.set_facecolor('lightgrey')
 
-ax.tick_params(axis='x', colors='grey')
-ax.yaxis.label.set_color('grey')
-ax.tick_params(axis='y', colors='grey')
-
+fig.suptitle("Daily new number of recorded COVID-19 cases in the Netherlands")
+ax.tick_params(axis='x', colors='black')
+ax.axes.set_xlabel("Date", labelpad=6.0)
+ax.axes.set_ylabel("Number of cases", labelpad=1.0)
+ax.yaxis.label.set_color('black')
+ax.tick_params(axis='y', colors='black')
+ax.set_yscale('log')
 ax.plot(x,y)
 
-ax.relim()
-ax.autoscale()
+#ax.relim()
+#ax.autoscale()
+plt.tight_layout()
 
-fig.savefig('nl_new_cases.png')
+fig.savefig('nl_new_cases_v2.svg')
 plt.close()
 #+end_src
+
+#+RESULTS:
+[[file:None]]
 
 * Animations
 I really like this animation example of a [[https://towardsdatascience.com/animations-with-matplotlib-d96375c5442c][growing coil]]
@@ -162,6 +171,9 @@ line, = ax.plot([], [], lw=2)
 plt.setp(legend.get_texts(), color='white')
 ax.margins(0.05)
 ax.grid(True, which='both', color = 'grey')
+line, = ax.plot([], [], lw=2)
+legend = ax.legend(loc='upper left',frameon=False)
+plt.setp(legend.get_texts(), color='white')
 
 # Creating data variables
 x = [(nl['datetime']).iloc[i].to_pydatetime() for i in range(nl.shape[0])]
@@ -207,16 +219,20 @@ Similarly, plotting Italy and the Netherlands in the same graph:
 #+begin_src python :results none
 # Plot parameters
 fig, ax = plt.subplots()
-legend = ax.legend(loc='upper left',frameon=False)
-plt.setp(legend.get_texts(), color='white')
 ax.margins(0.05)
-ax.grid(True, which='both', color = 'grey')
+ax.set_facecolor('silver')
+ax.grid(True, which='both', color = 'gainsboro')
 
-lines = []
-lobj1 = ax.plot([], [], 'k-', label = 'Italy', color = 'orange'),
-lobj2 = ax.plot([], [], 'k-', label = 'Netherlands', color = 'blue')
-lines.append(lobj1)
-lines.append(lobj2)
+lines = [
+    ax.plot([], [], label = 'Italy', color = 'coral'),
+    ax.plot([], [], label = 'Netherlands', color = 'c')
+    ]
+
+legend = ax.legend(loc='upper left',frameon=False)
+plt.setp(legend.get_texts(), color='black')
+plt.title('Number of new COVID-19 cases', color = 'black')
+plt.xlabel("Date (month, year)", color = 'black')
+plt.ylabel("Number of cases", color ='black')
 
 # Creating data variables
 shape_it = df[df['location']=='Italy'].shape
@@ -224,64 +240,264 @@ x_it = [(pd.to_datetime(
     df[
         df['location']=='Italy'
     ]['date']
-).iloc[0].to_pydatetime()) for i in range(shape_it[0])]
+).iloc[i].to_pydatetime()) for i in range(shape_it[0])]
 y_it = list(df[df['location']=='Italy']['new_cases'])
 
 shape_nl = df[df['location']=='Netherlands'].shape
-x_nl = [(pd.to_datetime(
+x_nl = x_it[:27] + [(pd.to_datetime(
     df[
         df['location']=='Netherlands'
     ]['date']
-).iloc[0].to_pydatetime()) for i in range(shape_nl[0])]
-y_nl = list(df[df['location']=='Italy']['new_cases'])
+).iloc[i].to_pydatetime()) for i in range(shape_nl[0])]
+y_nl = [0.0 for i in range(27)] + list(df[df['location']=='Netherlands']['new_cases'])
 
 def init():
     for lnum, line in enumerate(lines):
         if lnum == 0:
-            line.set_data(x_it[:1],y_it[:1])
-            line.axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+            line[0].set_data(x_it[:1],y_it[:1])
+            line[0].axes.xaxis.set_major_formatter(mdates.DateFormatter(""))#"%d-%m-%Y"))
         elif lnum == 1:
-            line.set_data(x_nl[:1],y_nl[:1])
-            line.axes.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%Y"))
+            line[0].set_data(x_nl[:1],y_nl[:1])
+            line[0].axes.xaxis.set_major_formatter(mdates.DateFormatter("%m-'%y"))
     return lines
 
 def animate(i):
+    it_xdata = x_it[0:i+1]
+    it_ydata = y_it[0:i+1]
 
-    it_xdata = x[0:i+1]
-    it_ydata = y[0:i+1]
+    nl_xdata = x_nl[0:i+1]
+    nl_ydata = y_nl[0:i+1]
 
-    if i > 26:
-        nl_xdata = x[0:i-26]
-        nl_ydata = y[0:i-26]
+    for n, line in enumerate(lines):
+        if n==0:
+            line[0].set_data(it_xdata, it_ydata)
+        elif n==1:
+            line[0].set_data(nl_xdata, nl_ydata)
 
-    for lnum, line in enumerate(lines):
-        if lnum == 0:
-            line.set_data(it_xdata, it_ydata)
-        elif lnum == 1 & i > 26:
-            line.set_data(nl_xdata, nl_ydata)
-
-    plt.title('Number of new COVID-19 cases', color = 'grey')
-    plt.ylabel("Number of cases", color ='grey')
-    plt.xlabel("Time", color = 'grey')
-
-    ax.set_facecolor('black')
-    ax.xaxis.label.set_color('grey')
-    ax.tick_params(axis='x', colors='grey')
-    ax.yaxis.label.set_color('grey')
-    ax.tick_params(axis='y', colors='grey')
-
+    ax.xaxis.label.set_color('black')
+    if i % 2 == 0:
+        ax.xaxis.label.set_visible(False)
+    ax.tick_params(axis='x', colors='black')
+    ax.yaxis.label.set_color('black')
+    ax.tick_params(axis='y', colors='black')
+    #plt.tight_layout()
     ax.relim()
     ax.autoscale()
 
     return lines
 
-anim = animation.FuncAnimation(fig, animate, init_func=init,frames=iter(range(shape_it[0])))
+anim = animation.FuncAnimation(fig, animate, interval=60, init_func=init,frames=[i for i in range(shape_it[0])])
 
 plt.show()
-anim.save('IT_NL_new_cases.gif',writer='imagemagick')
+anim.save('IT_NL_new_cases_v2.gif',writer='imagemagick')
 #+end_src
 
-* TODO fix
+* Seaborn
 
-Fix by just filtering data from the start of NL first so we have both graphs
-start at the same time and no weird iterations etc.
+** Example
+
+This seaborn example sparked my interest.
+
+#+begin_src python :results file
+sns.set_theme(style="dark")
+flights = sns.load_dataset("flights")
+
+# Plot each year's time series in its own facet
+g = sns.relplot(
+    data=flights,
+    x="month", y="passengers", col="year", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend=False,
+)
+
+# Iterate over each subplot to customize further
+for year, ax in g.axes_dict.items():
+
+    # Add the title as an annotation within the plot
+    ax.text(.8, .85, year, transform=ax.transAxes, fontweight="bold")
+
+    # Plot every year's time series in the background
+    sns.lineplot(
+        data=flights, x="month", y="passengers", units="year",
+        estimator=None, color=".7", linewidth=1, ax=ax,
+    )
+
+# Reduce the frequency of the x axis ticks
+ax.set_xticks(ax.get_xticks()[::2])
+
+# Tweak the supporting aspects of the plot
+g.set_titles("")
+g.set_axis_labels("", "Passengers")
+g.tight_layout()
+g.fig.savefig("seaborn_example.png")
+"seaborn_example.png"
+#+end_src
+
+#+RESULTS:
+[[file:seaborn_example.png]]
+
+** COVID implementation
+
+Let's try to implement it for 3 years of COVID data - maybe for some different
+countries?
+
+*** Preprocessing
+#+begin_src python :results none
+df['month'] = pd.to_datetime(df['date'], format="%Y-%m-%d").apply(lambda x: x.strftime("%B"))
+df['year'] = df['date'].str[:4].astype('int')
+df['day'] = df['date'].str[-2:].astype('int')
+#+end_src
+
+*** Relplot
+#+begin_src python :results none
+sns.set_theme(style="dark")
+
+# Plot each year's time series in its own facet
+g = sns.relplot(
+    data=df[(df['location']=='Netherlands')],
+    x="day", y="new_cases", col="month", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend="brief",
+)
+
+sns.relplot(
+    data=df[(df['location']=='Netherlands')],
+    x="day", y='hosp_patients', col="month", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend="brief", ax=g.axes.twinx()
+)
+
+# Iterate over each subplot to customize further
+for month, ax in g.axes_dict.items():
+
+    # Add the title as an annotation within the plot
+    ax.text(.8, .85, month, transform=ax.transAxes, fontweight="bold")
+    ax.axes.set_xlim(0, 30)
+
+# Tweak the supporting aspects of the plot
+g.set_titles("")
+g.set_axis_labels("Day of the month", "New cases")
+g.set(yscale="log")
+g.tight_layout()
+for line in g.legend.get_lines():
+    line.set_linewidth(4.0)
+g.fig.suptitle("Daily COVID-19 cases in the Netherlands")
+g.fig.subplots_adjust(top=0.92)
+g.fig.savefig("NL_infections_per_month.png")
+#+end_src
+
+#+begin_src python :results none
+sns.set_theme(style="dark")
+
+# Plot each year's time series in its own facet
+g = sns.relplot(
+    data=df[(df['location']=='Netherlands')],
+    x="day", y="hosp_patients_per_million", col="month", hue="year",
+    kind="line", palette="crest", linewidth=4, zorder=5,
+    col_wrap=3, height=2, aspect=1.5, legend="brief",
+)
+
+# Iterate over each subplot to customize further
+for month, ax in g.axes_dict.items():
+    ax.set_zorder(0)
+    # Add the title as an annotation within the plot
+    ax.text(.8, .85, month, transform=ax.transAxes, fontweight="bold", zorder=6)
+    ax.axes.set_xlim(0, 30)
+
+# Tweak the supporting aspects of the plot
+g.set_titles("")
+g.set_axis_labels("Day of the month", "count per million")
+g.tight_layout()
+for line in g.legend.get_lines():
+    line.set_linewidth(4.0)
+g.fig.suptitle("COVID-19 Hospital patients per million in the Netherlands")
+g.fig.subplots_adjust(top=0.92)
+g.fig.savefig("NL_hospitalisations_per_month.svg")
+#+end_src
+
+*** Line graph
+
+#+begin_src python :results none
+#sns.set_theme(style="darkgrid")
+
+# specify plot layouts with different width using subplots()
+f, ax = plt.subplots(1,1,
+                      figsize=(8,6))
+sns.lineplot(data=nl,
+   x="datetime", y="new_cases",
+   palette="crest", linewidth=2, ax=ax)
+
+# f.yscale("log")
+# f.xticks(["2020-03-01", "2021-01-01", "2022-01-01"])
+f.tight_layout()
+
+# Plot the responses for different events and regions
+f.savefig("NL_infect_hosp_timeline.png")
+plt.close('all')
+#+end_src
+
+*** TODO Scatterplot - Fix labels
+
+Create bins for GDP
+
+#+begin_src python :results none
+bins = [0, 4500, 15000, 30000, 80000, 120000]
+labels = ["$0-$4500", "$4500-$15.000", "$15.000-$30.000", "$30.000-$80.000", "$80.000-$117.000"]
+df_scat = df[["location", "gdp_per_capita", 'people_vaccinated_per_hundred', 'hosp_patients_per_million']].groupby("location").last().reset_index().dropna()
+df['gdp_binned'] = pd.cut(df['gdp_per_capita'], bins=bins, labels=labels)
+#+end_src
+
+#+begin_src python :results none
+sns.set_theme(style="whitegrid")
+
+# Draw a scatter plot while assigning point colors and sizes to different
+# variables in the dataset
+f, ax = plt.subplots(figsize=(10, 10))
+sns.despine(f, left=True, bottom=True)
+g = sns.scatterplot(x='date', y='hosp_patients_per_million',
+                hue='location', alpha=0.6,
+                palette="inferno", linewidth=0,
+                data=df,
+                    #df_scat[df_scat['location']!='Bulgaria'],
+                    ax=ax, legend=False)
+
+
+def label_point(x, y, val, ax):
+    a = pd.concat({'x': x, 'y': y, 'val': val}, axis=1)
+    for i, point in a.iterrows():
+        ax.text(point['x']+.03, point['y'], str(point['val']), size='small')
+
+#label_point(df_scat['people_vaccinated_per_hundred'], df_scat['hosp_patients_per_million'], #df_scat['location'], ax)
+g.set_xlabel("Number of people vaccinated per hundred")
+g.set_ylabel("Number of people hospitalised per million")
+g.set_title("COVID-19 hospitalisations as related to number of vaccinations ")
+
+f.savefig("hosp_vs_vacc_scatter_noNaNs.png")
+#+end_src
+
+
+#+begin_src python :results none
+sns.set_theme(style="whitegrid")
+
+# Draw a scatter plot while assigning point colors and sizes to different
+# variables in the dataset
+f, ax = plt.subplots(figsize=(10, 10))
+sns.despine(f, left=True, bottom=True)
+sns.scatterplot(x='people_vaccinated_per_hundred', y='hosp_patients_per_million',
+                hue='gdp_binned', alpha=0.5,
+                palette="PuRd", linewidth=0,
+                data=df[~df['continent'].isna()], ax=ax)
+f.savefig("GLB_hospitalisation_vs_vacc_scatter.png")
+#+end_src
+
+
+* TODO Links
+
+animated plots
+https://pythonforundergradengineers.com/live-plotting-with-matplotlib.html
+
+basic plotly
+https://plotly.com/python/line-and-scatter/
+
+dash interactive dashboard
+https://dash.gallery/dash-opioid-epidemic/
