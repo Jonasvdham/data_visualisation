@@ -1,0 +1,80 @@
+#+TITLE: Data Preparation for GIS
+#+AUTHOR: Jonas van der Ham | MSc MADE
+#+EMAIL: Jonasvdham@gmail.com
+#+DATE: Monday, 28 February 2022
+#+STARTUP: showall
+#+PROPERTY: header-args :exports both :session gis :cache no
+:PROPERTIES:
+#+OPTIONS: ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [logo, color, author]
+#+LATEX_HEADER: \insertauthor
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[style=ieee, citestyle=numeric-comp, isbn=false]{biblatex}
+#+LATEX_HEADER: \addbibresource{~/made/bibliography/references.bib}
+#+LATEX_HEADER: \setminted{bgcolor=WhiteSmoke}
+#+OPTIONS: toc:nil
+:END:
+
+* Imports
+
+#+begin_src python :results none
+import pandas as pd
+import numpy as np
+from datetime import datetime
+#+end_src
+
+* OurWorldInData Complete dataset
+
+We use the same data as we did in python, and in this report prepare it for use
+in ArcGIS.
+
+#+begin_src python :results none
+#df = pd.read_csv("~/data_visualisation/owid-covid-data.csv")
+df = pd.read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
+cols = list(df.columns)
+
+# Save only countries
+df = df[~df['continent'].isna()]
+#+end_src
+
+Take country shapefiles from
+https://public.opendatasoft.com/explore/dataset/country_shapes/export/
+
+#+begin_src python :results none
+country_boundaries = pd.read_csv("~/data_visualisation/country_shapes.csv", delimiter=";")
+#+end_src
+
+Joining them, some country codes are missing though :(
+#+begin_src python :results none
+#df = df.join(country_boundaries, lsuffix="iso_code", rsuffix="ISO3")
+df2 = pd.concat([pd.merge(df[~df["continent"].isna()], country_boundaries, left_on='iso_code', right_on='ISO3'),
+                 pd.merge(df, country_boundaries[country_boundaries['ISO3'].isna()], left_on='location', right_on='Country')])
+df2 = df2.drop(["ISO3 CODE", "LABEL FR", "LABEL SP", "ONU CODE", "Iso2 2", "Iso A2", "ISO2", "ISO3", "Join Name", "Country"], axis=1)
+cols2 = df2.columns
+#+end_src
+
+#+begin_src python :results none
+shapes = df2.groupby("location")['Geo Shape'].first()
+shapes.to_csv("~/data_visualisation/my_country_shapes.csv")
+#+end_src
+
+#+begin_src python :results none
+country_df = df[~df['iso_code'].isna()]
+country_df.to_csv("~/data_visualisation")
+#+end_src
+
+* Lazy: Dataset for 1 day
+
+Time series data in ArcGIS is giving me a hard time so just to have something
+to show for, I will create some single day datasets
+
+#+begin_src python :results none
+for date in ['2020-04-01', '2020-09-01', '2021-04-01', '2021-09-01', '2022-02-01']:
+    df[df.date==date].to_csv("~/data_visualisation/covid_data"+date+".csv")
+#+end_src
+* Links
+
+temporal data arcgis pro
+https://pro.arcgis.com/en/pro-app/2.8/get-started/visualize-temporal-data.htm

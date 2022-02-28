@@ -61,7 +61,8 @@ https://github.com/owid/covid-19-data/tree/master/public/data.
 I will use this dataset
 
 #+begin_src python :results none
-df = pd.read_csv("~/data_visualisation/owid-covid-data.csv")
+#df = pd.read_csv("~/data_visualisation/owid-covid-data.csv")
+df = pd.read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
 cols = list(df.columns)
 #+end_src
 
