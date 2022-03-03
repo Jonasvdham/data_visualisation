@@ -23,6 +23,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from datetime import timedelta
 #+end_src
 
 * OurWorldInData Complete dataset
@@ -65,6 +66,33 @@ country_df = df[~df['iso_code'].isna()]
 country_df.to_csv("~/data_visualisation")
 #+end_src
 
+** Filling missing dates
+
+Looks like ArcGIS doesn't like the fact that data only starts for countries
+once the first case happened, so let's add NAN data.
+
+#+begin_src python :results none
+full_df = df[['iso_code', 'location', 'date', 'new_deaths_smoothed', 'total_cases_per_million', 'new_cases_smoothed_per_million', 'people_vaccinated_per_hundred', 'population', 'population_density', 'gdp_per_capita', 'life_expectancy', 'human_development_index']].copy()
+dates = full_df.date.unique()
+
+
+for loc in full_df['iso_code'].unique():
+    row = df[df['iso_code']==loc].iloc[0]
+    #min_date = datetime.strptime(full_df[full_df['iso_code']==loc]['date'].min(), '%Y-%m-%d')
+    date_range = set(pd.Series(pd.date_range(dates.min(), dates.max(),freq='d').strftime('%Y-%m-%d')))
+    missing_dates = sorted(date_range - set(full_df[full_df['iso_code']==loc].date.unique()))
+
+    empty_row = np.empty(len(missing_dates))
+    empty_row[:] = np.nan
+    tmp_df = pd.DataFrame({'iso_code': np.full_like(missing_dates, row['iso_code']), 'location': np.full_like(missing_dates, row['location']), 'date': missing_dates, 'new_deaths_smoothed': empty_row, 'total_cases_per_million': empty_row, 'new_cases_smoothed_per_million': empty_row, 'people_vaccinated_per_hundred': empty_row, 'population': np.full_like(missing_dates, row['population']), 'population_density': np.full_like(missing_dates, row['population_density']), 'gdp_per_capita': np.full_like(missing_dates, row['gdp_per_capita']), 'life_expectancy': np.full_like(missing_dates, row['life_expectancy']), 'human_development_index': np.full_like(missing_dates, row['human_development_index'])})
+    full_df = pd.concat([full_df, tmp_df])
+
+full_df = full_df.sort_values(by=['iso_code', 'date'])
+#+end_src
+
+#+begin_src python :results none
+full_df.to_csv("~/data_visualisation/covid_data_filled_dates.csv")
+#+end_src
 * Lazy: Dataset for 1 day
 
 Time series data in ArcGIS is giving me a hard time so just to have something
