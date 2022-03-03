@@ -74,6 +74,42 @@ to show for, I will create some single day datasets
 for date in ['2020-04-01', '2020-09-01', '2021-04-01', '2021-09-01', '2022-02-01']:
     df[df.date==date].to_csv("~/data_visualisation/covid_data"+date+".csv")
 #+end_src
+
+Ok those create nice graphics, but it would be more informative to use monthly
+averages.
+
+#+begin_src python :results none
+period = pd.period_range(start=df.date.min(), end=df.date.max(), freq='M')
+aggregators = {
+    'iso_code': 'first',
+    'continent': 'first',
+    'location': 'first',
+    'total_cases': 'mean',
+    'new_cases_smoothed': 'mean',
+    'total_deaths': 'mean',
+    'new_deaths_smoothed': 'mean',
+    'total_cases_per_million': 'mean',
+    'new_cases_smoothed_per_million': 'mean',
+    'total_deaths_per_million': 'mean',
+    'new_deaths_smoothed_per_million': 'mean',
+    'reproduction_rate': 'mean',
+    'icu_patients_per_million': 'mean',
+    'hosp_patients_per_million': 'mean',
+    'people_vaccinated': 'mean',
+    'people_fully_vaccinated': 'mean',
+    'people_vaccinated_per_hundred': 'mean',
+    'people_fully_vaccinated_per_hundred': 'mean',
+    'new_vaccinations_smoothed_per_million': 'mean',
+    'population': 'mean',
+    'population_density': 'mean',
+    'median_age': 'mean',
+    'gdp_per_capita': 'mean'}
+
+for date in period:
+    tmp_grouping = df[df['date'].str[:7]==str(date)].groupby('location')
+    df_tmp = tmp_grouping.agg(aggregators)
+    df_tmp.to_csv("~/data_visualisation/covid_data"+str(date)+".csv")
+#+end_src
 * Links
 
 temporal data arcgis pro
