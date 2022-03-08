@@ -1,4 +1,4 @@
-#+TITLE: Data Preparation for GIS
+>#+TITLE: Data Preparation for GIS
 #+AUTHOR: Jonas van der Ham | MSc MADE
 #+EMAIL: Jonasvdham@gmail.com
 #+DATE: Monday, 28 February 2022
@@ -84,14 +84,34 @@ for loc in full_df['iso_code'].unique():
 
     empty_row = np.empty(len(missing_dates))
     empty_row[:] = np.nan
-    tmp_df = pd.DataFrame({'iso_code': np.full_like(missing_dates, row['iso_code']), 'location': np.full_like(missing_dates, row['location']), 'date': missing_dates, 'new_deaths_smoothed': empty_row, 'total_cases_per_million': empty_row, 'new_cases_smoothed_per_million': empty_row, 'people_vaccinated_per_hundred': empty_row, 'population': np.full_like(missing_dates, row['population']), 'population_density': np.full_like(missing_dates, row['population_density']), 'gdp_per_capita': np.full_like(missing_dates, row['gdp_per_capita']), 'life_expectancy': np.full_like(missing_dates, row['life_expectancy']), 'human_development_index': np.full_like(missing_dates, row['human_development_index'])})
+    tmp_df = pd.DataFrame(
+        {'iso_code': np.full_like(missing_dates, row['iso_code'], dtype=str),
+         'location': np.full_like(missing_dates, row['location'], dtype=str),
+         'date': missing_dates, 'new_deaths_smoothed': empty_row,
+         'total_cases_per_million': empty_row,
+         'new_cases_smoothed_per_million': empty_row,
+         'people_vaccinated_per_hundred': empty_row,
+         'population': np.full_like(missing_dates, row['population'],
+                                    dtype=int),
+         'population_density': np.full_like(missing_dates,
+                                            row['population_density'],
+                                            dtype=float),
+         'gdp_per_capita': np.full_like(missing_dates, row['gdp_per_capita'],
+                                        dtype=float),
+         'life_expectancy': np.full_like(missing_dates,
+                                         row['life_expectancy'], dtype=int),
+         'human_development_index': np.full_like(missing_dates,
+                                               row['human_development_index'],
+                                                 dtype='float')
+        }
+    )
     full_df = pd.concat([full_df, tmp_df])
 
 full_df = full_df.sort_values(by=['iso_code', 'date'], ignore_index=True)
 #+end_src
 
 #+begin_src python :results none
-full_df.to_csv("~/data_visualisation/covid_data_filled_dates.csv")
+full_df.to_csv("~/data_visualisation/covid_data_filled_dates.csv", index=False)
 #+end_src
 * Lazy: Dataset for 1 day
 

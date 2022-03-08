@@ -49,3 +49,41 @@ localhost:8080 (check with WSL)
 * animations
 
 - use ffmpeg
+
+
+* Laatste uitleg
+
+componenten met verschillende charts
+
+computed - Moet steeds opnieuw berekend worden op basis van selectie
+
+** csv laden
+
+- csv library : d3
+  import { csv } from "d3-fetch"
+  npm add d3-fetch (zie terug in package.json)
+
+DF inladen:
+mounted() {console.log("ingeladen")}
+
+dus:
+
+
+#+begin_src javascript :results none
+mounted(){
+    csv("data/small_df.csv")
+#+end_src
+
+** Modules
+
+kaarten:
+- leaflet
+- mapbox
+
+Plots:
+charts.js
+
+
+* Examples
+
+Vue map projects https://vuejsexamples.com/tag/maps/
