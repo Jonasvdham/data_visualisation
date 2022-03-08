@@ -1,8 +1,14 @@
 <template>
   <div id="app">
-    <select v-model="selection">
+    <select v-model="location">
       <option value="NL">The Netherlands</option>
       <option value="IT">Italy</option>
+    </select>
+    <select v-model="feature">
+      <option value="new_cases_smoothed_per_million">New cases per million</option>
+      <option value="total_cases_per_million">Total cases per million</option>
+      <option value="new_deaths_smoothed">New deaths</option>
+      <option value="people_vaccinated_per_hundred">Percentage people vaccinated</option>      
     </select>
     <div class="chart-container">
       <BarChart :chartData="barChartData"/>
@@ -20,8 +26,16 @@ import { csv } from 'd3-fetch'
 
 export default {
   data: () => ({
-    selection: "NL",
-    rawData: []
+    location: "NL",
+    feature: "new_cases_smoothed_per_million",
+    rawData: [],
+    labeldict: {
+      "new_cases_smoothed_per_million" : "New cases per million",
+      "total_cases_per_million": "Total cases per million",
+      "new_deaths_smoothed": "New deaths",
+      "people_vaccinated_per_hundred": "Vaccination percentage"
+
+    }
   }),
   
   components: {
@@ -40,14 +54,14 @@ export default {
       if (!this.rawData.length) {
         return null;
       }
-      else if (this.selection == "NL") {
+      else if (this.location == "NL") {
         let plotData = []
         plotData = this.filterData(this.rawData, "Netherlands")
         return {
           labels: plotData[0],
           datasets: [
             {
-              label: 'Cases in the Netherlands',
+              label: this.labeldict[this.feature],
               backgroundColor: '#1E4785',
               data: plotData[1]
             }
@@ -60,7 +74,7 @@ export default {
           labels: plotData[0],
           datasets: [
             {
-              label: 'Cases in Italy',
+              label: this.labeldict[this.feature],
               backgroundColor: '#008c45',
               data: plotData[1]
             }
@@ -75,7 +89,6 @@ export default {
       it = this.filterData(this.rawData, "Italy")[1]
       nl = Array.from(nl, item => item || 0).slice(100,150);
       it = Array.from(it, item => item || 0).slice(100,150);
-      console.log(nl);
       return {
         datasets: [
           {
@@ -97,7 +110,7 @@ export default {
       let yData = [] 
       let i = 0
       let len = data.length
-
+      console.log(this.feature)
       while ((country != data[i].location) && (i < len)) {
         i++;
       }
@@ -105,10 +118,10 @@ export default {
       for ( ; i < len; i++) {
         if (country == data[i].location) {
           let date = data[i].date;
-          let cases = parseInt(data[i].new_cases_smoothed_per_million);
+          let yVar = parseInt(data[i][this.feature]);
           
           xData.push(date);
-          yData.push(cases);
+          yData.push(yVar);
         }
       }
       console.log(xData);
@@ -128,7 +141,7 @@ export default {
   margin-top: 10px;
 }
 .chart-container {
-  width: 400px;
+  width: 600px;
   height: 400px;
   margin: 20px;
 }
