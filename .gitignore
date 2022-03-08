@@ -8,3 +8,4 @@
 *.svg
 apikey
 \#* # Emacs backup files
+javascript/node_modules/
