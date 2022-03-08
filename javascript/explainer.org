@@ -87,3 +87,6 @@ charts.js
 * Examples
 
 Vue map projects https://vuejsexamples.com/tag/maps/
+
+* filterData() ook een computed van maken ipv een functie
+aangezien ze dezelfde data
