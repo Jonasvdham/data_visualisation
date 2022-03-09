@@ -72,7 +72,7 @@ Looks like ArcGIS doesn't like the fact that data only starts for countries
 once the first case happened, so let's add NAN data.
 
 #+begin_src python :results none
-full_df = df[['iso_code', 'location', 'date', 'new_deaths_smoothed', 'total_cases_per_million', 'new_cases_smoothed_per_million', 'people_vaccinated_per_hundred', 'population', 'population_density', 'gdp_per_capita', 'life_expectancy', 'human_development_index']].copy()
+full_df = df[['iso_code', 'location', 'date', 'total_cases', 'total_cases_per_million', 'new_cases_smoothed_per_million', 'new_deaths_smoothed', 'people_vaccinated_per_hundred', 'population', 'population_density', 'gdp_per_capita', 'life_expectancy', 'human_development_index']].copy()
 dates = full_df.date.unique()
 
 
@@ -82,29 +82,29 @@ for loc in full_df['iso_code'].unique():
     date_range = set(pd.Series(pd.date_range(dates.min(), dates.max(),freq='d').strftime('%Y-%m-%d')))
     missing_dates = sorted(date_range - set(full_df[full_df['iso_code']==loc].date.unique()))
 
+    if len(row['iso_code']) < 3:
+        print(loc)
     empty_row = np.empty(len(missing_dates))
     empty_row[:] = np.nan
     tmp_df = pd.DataFrame(
-        {'iso_code': np.full_like(missing_dates, row['iso_code'], dtype=str),
-         'location': np.full_like(missing_dates, row['location'], dtype=str),
-         'date': missing_dates, 'new_deaths_smoothed': empty_row,
+        {'iso_code': np.array(len(missing_dates) * [row['iso_code']]),
+         'location': np.array(len(missing_dates) * [row['location']]),
+         'date': missing_dates,
+         'total_deaths': empty_row,
+         'new_deaths_smoothed': empty_row,
+         'total_cases': empty_row,
          'total_cases_per_million': empty_row,
          'new_cases_smoothed_per_million': empty_row,
          'people_vaccinated_per_hundred': empty_row,
-         'population': np.full_like(missing_dates, row['population'],
-                                    dtype=int),
-         'population_density': np.full_like(missing_dates,
-                                            row['population_density'],
-                                            dtype=float),
-         'gdp_per_capita': np.full_like(missing_dates, row['gdp_per_capita'],
-                                        dtype=float),
-         'life_expectancy': np.full_like(missing_dates,
-                                         row['life_expectancy'], dtype=int),
-         'human_development_index': np.full_like(missing_dates,
-                                               row['human_development_index'],
-                                                 dtype='float')
+         'population': np.array(len(missing_dates) * [row['population']]),
+         'population_density': np.array(len(missing_dates) * [row['population_density']]),
+         'gdp_per_capita': np.array(len(missing_dates) * [row['gdp_per_capita']]),
+         'life_expectancy': np.array(len(missing_dates) * [row['life_expectancy']]),
+         'human_development_index': np.array(len(missing_dates) * [row['human_development_index']]),
         }
     )
+    # if len(tmp_df['location'].iloc[0]) < 3:
+    #     print(loc, tmp_df['location'].iloc[0])
     full_df = pd.concat([full_df, tmp_df])
 
 full_df = full_df.sort_values(by=['iso_code', 'date'], ignore_index=True)
@@ -113,6 +113,29 @@ full_df = full_df.sort_values(by=['iso_code', 'date'], ignore_index=True)
 #+begin_src python :results none
 full_df.to_csv("~/data_visualisation/covid_data_filled_dates.csv", index=False)
 #+end_src
+
+*** Group by month
+
+#+begin_src python :results none
+period = pd.period_range(start=full_df.date.min(), end=full_df.date.max(), freq='M')
+aggregators = {
+    'iso_code': 'first',
+    'location': 'first',
+    'total_cases': 'mean',
+    'total_deaths': 'mean',
+    'new_deaths_smoothed': 'mean',
+    'total_cases_per_million': 'mean',
+    'new_cases_smoothed_per_million': 'mean',
+    'people_vaccinated_per_hundred': 'mean',
+    'population': 'mean',
+    'gdp_per_capita': 'mean'}
+
+for date in period:
+    tmp_grouping = full_df[full_df['date'].str[:7]==str(date)].groupby('location')
+    df_tmp = tmp_grouping.agg(aggregators)
+    df_tmp.to_csv("~/data_visualisation/javascript/vue-datamaps/demo/example-vue-cli3/public/data/covid_data"+str(date)+".csv")
+#+end_src
+
 * Lazy: Dataset for 1 day
 
 Time series data in ArcGIS is giving me a hard time so just to have something
