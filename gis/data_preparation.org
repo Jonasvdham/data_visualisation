@@ -1,4 +1,4 @@
->#+TITLE: Data Preparation for GIS
+#+TITLE: Data Preparation for GIS
 #+AUTHOR: Jonas van der Ham | MSc MADE
 #+EMAIL: Jonasvdham@gmail.com
 #+DATE: Monday, 28 February 2022
@@ -117,10 +117,16 @@ full_df.to_csv("~/data_visualisation/covid_data_filled_dates.csv", index=False)
 *** Group by month
 
 #+begin_src python :results none
+full_df = full_df[full_df['iso_code'].str.len() <= 3]
+full_df = full_df.fillna(0)
+#+end_src
+
+#+begin_src python :results none
 period = pd.period_range(start=full_df.date.min(), end=full_df.date.max(), freq='M')
 aggregators = {
     'iso_code': 'first',
     'location': 'first',
+    'date': 'first',
     'total_cases': 'mean',
     'total_deaths': 'mean',
     'new_deaths_smoothed': 'mean',
@@ -129,13 +135,61 @@ aggregators = {
     'people_vaccinated_per_hundred': 'mean',
     'population': 'mean',
     'gdp_per_capita': 'mean'}
-
+months_df = pd.DataFrame(
+    columns=[
+        'iso_code',
+        'location',
+        'date',
+        'total_cases',
+        'total_deaths',
+        'new_deaths_smoothed',
+        'total_cases_per_million',
+        'new_cases_smoothed_per_million',
+        'people_vaccinated_per_hundred',
+        'population',
+        'gdp_per_capita',
+    ]
+)
 for date in period:
     tmp_grouping = full_df[full_df['date'].str[:7]==str(date)].groupby('location')
     df_tmp = tmp_grouping.agg(aggregators)
-    df_tmp.to_csv("~/data_visualisation/javascript/vue-datamaps/demo/example-vue-cli3/public/data/covid_data"+str(date)+".csv")
+    df_tmp['date'] = df_tmp['date'].str[:7]
+    months_df = pd.concat([months_df, df_tmp])
+    #df_tmp.to_csv("~/data_visualisation/javascript/vue-datamaps/demo/example-vue-cli3/public/data/covid_data"+str(date)+".csv")
+months_df.to_csv("~/data_visualisation/javascript/vue-datamaps/demo/example-vue-cli3/public/data/monthly_covid_data.csv")
 #+end_src
 
+#+begin_src python :results none
+
+#+end_src
+
+'2020-01': 0,
+'2020-02': 224,
+'2020-03': 448,
+'2020-04': 672,
+'2020-05': 896,
+'2020-06': 1120,
+'2020-07': 1344,
+'2020-08': 1568,
+'2020-09': 1792,
+'2020-10': 2016,
+'2020-11': 2240,
+'2020-12': 2464,
+'2021-01': 2688,
+'2021-02': 2912,
+'2021-03': 3136,
+'2021-04': 3360,
+'2021-05': 3584,
+'2021-06': 3808,
+'2021-07': 4032,
+'2021-08': 4256,
+'2021-09': 4480,
+'2021-10': 4704,
+'2021-11': 4928,
+'2021-12': 5152,
+'2022-01': 5376,
+'2022-02': 5600,
+'2022-03': 5824
 * Lazy: Dataset for 1 day
 
 Time series data in ArcGIS is giving me a hard time so just to have something

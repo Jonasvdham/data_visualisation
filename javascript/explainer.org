@@ -90,3 +90,68 @@ Vue map projects https://vuejsexamples.com/tag/maps/
 
 * filterData() ook een computed van maken ipv een functie
 aangezien ze dezelfde data
+
+
+* TODO Nog te fixen
+- Legenda
+- Time slider/
+- Centeren
+- Titel
+- Knopje mooier maken
+- hover over data
+
+
+      range: [
+        {
+          label: "2020-01"
+        },
+        {
+          label: "2020-01",
+          isHide: true
+        },
+        {
+          label: "45 mins"
+        },
+        {
+          label: "1 hr",
+          isHide: true
+        },
+        {
+          label: "1 hr 15 mins"
+        },
+        {
+          label: "1 hr 30 mins",
+          isHide: true
+        },
+        {
+          label: "2 hrs"
+        }
+      ]
+
+
+      '2020-02': 224,
+      '2020-03': 448,
+      '2020-04': 672,
+      '2020-05': 896,
+      '2020-06': 1120,
+      '2020-07': 1344,
+      '2020-08': 1568,
+      '2020-09': 1792,
+      '2020-10': 2016,
+      '2020-11': 2240,
+      '2020-12': 2464,
+      '2021-01': 2688,
+      '2021-02': 2912,
+      '2021-03': 3136,
+      '2021-04': 3360,
+      '2021-05': 3584,
+      '2021-06': 3808,
+      '2021-07': 4032,
+      '2021-08': 4256,
+      '2021-09': 4480,
+      '2021-10': 4704,
+      '2021-11': 4928,
+      '2021-12': 5152,
+      '2022-01': 5376,
+      '2022-02': 5600,
+      '2022-03': 5824
