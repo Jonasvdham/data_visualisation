@@ -154,6 +154,7 @@ for date in period:
     tmp_grouping = full_df[full_df['date'].str[:7]==str(date)].groupby('location')
     df_tmp = tmp_grouping.agg(aggregators)
     df_tmp['date'] = df_tmp['date'].str[:7]
+    df_tmp = df_tmp.sort_values(by=['iso_code'], ignore_index=True)
     months_df = pd.concat([months_df, df_tmp])
     #df_tmp.to_csv("~/data_visualisation/javascript/vue-datamaps/demo/example-vue-cli3/public/data/covid_data"+str(date)+".csv")
 months_df.to_csv("~/data_visualisation/javascript/vue-datamaps/demo/example-vue-cli3/public/data/monthly_covid_data.csv")
