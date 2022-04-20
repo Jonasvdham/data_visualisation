@@ -46,7 +46,7 @@ df = pd.read_csv("~/data_visualisation/data/for_remov.tsv", sep='\t')
 df
 #+end_src
 
-#+RESULTS:
+
 #+begin_example
      treespec,prod_wd,unit,bark,geo\time      2020       2019       2018       2017   ...   1992  1991  1990  1989  1988
 0                CONIF,RW,THS_M3,OVBK,AT  15619.84   17893.93   17963.23   16346.24   ...      :     :     :     :     :
@@ -75,7 +75,7 @@ are separated by comma, while the other columns were separated by tab.
 df.columns[0]
 #+end_src
 
-#+RESULTS:
+
 : treespec,prod_wd,unit,bark,geo\time
 
 I can show the first column as follows:
@@ -91,7 +91,7 @@ Which I will now split by the ',' character to turn it into separate columns.
 df.iloc[:,0].str.split(',', expand=True)
 #+end_src
 
-#+RESULTS:
+
 #+begin_example
           0         1       2     3   4
 0     CONIF        RW  THS_M3  OVBK  AT
@@ -116,7 +116,7 @@ the old dataframe:
 df.columns[0].split(',')
 #+end_src
 
-#+RESULTS:
+
 | treespec | prod_wd | unit | bark | geo\time |
 
 Together, I put these into a new DataFrame (df2)
@@ -127,7 +127,7 @@ df2.columns = df.columns[0].split(',')
 df2
 #+end_src
 
-#+RESULTS:
+
 #+begin_example
      treespec   prod_wd    unit  bark geo\time
 0       CONIF        RW  THS_M3  OVBK       AT
@@ -210,7 +210,7 @@ by looking at all entries for one specific country:
 df[df['location']=='NL']
 #+end_src
 
-#+RESULTS:
+
 #+begin_example
          2020      2019      2018      2017      2016     2015   ... 1988  treespec   prod_wd    unit  bark location
 23    1021.54   1073.72   1063.97   1120.54     834.6      820   ...    :     CONIF        RW  THS_M3  OVBK       NL
