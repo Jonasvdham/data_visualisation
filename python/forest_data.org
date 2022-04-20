@@ -165,7 +165,6 @@ One good thing to check is how many rows I have for each country:
 df['location'].value_counts()
 #+end_src
 
-#+RESULTS:
 #+begin_example
 AT           36
 BE           36
