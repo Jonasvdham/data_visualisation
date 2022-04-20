@@ -1,0 +1,37 @@
+#+TITLE: Forest data
+#+AUTHOR: Jonas van der Ham | MSc MADE
+#+EMAIL: Jonasvdham@gmail.com
+#+DATE: Tuesday, 19 April 2022
+#+STARTUP: showall
+#+PROPERTY: header-args :exports both :session forest :cache no
+:PROPERTIES:
+#+OPTIONS: ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [logo, color, author]
+#+LATEX_HEADER: \insertauthor
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[style=ieee, citestyle=numeric-comp, isbn=false]{biblatex}
+#+LATEX_HEADER: \addbibresource{~/made/bibliography/references.bib}
+#+LATEX_HEADER: \setminted{bgcolor=WhiteSmoke}
+#+OPTIONS: toc:nil
+:END:
+
+
+* Imports
+
+#+begin_src python :results none
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+#+end_src
+
+* Introduction
+
+source: https://ec.europa.eu/eurostat/en/web/products-datasets/-/FOR_REMOV
+- https://ec.europa.eu/eurostat/databrowser/view/FOR_REMOV/default/table?lang=en&category=for.for_rpt.for_rptr
+#+begin_src python :results none
+df = pd.read_csv("~/data_visualisation/data/for_remov.tsv", sep='\t')
+#+end_src
