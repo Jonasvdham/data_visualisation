@@ -46,6 +46,24 @@ df = pd.read_csv("~/data_visualisation/data/for_remov.tsv", sep='\t')
 df
 #+end_src
 
+#+RESULTS:
+#+begin_example
+     treespec,prod_wd,unit,bark,geo\time      2020       2019   ... 1990  1989  1988
+0                CONIF,RW,THS_M3,OVBK,AT  15619.84   17893.93   ...    :     :     :
+1                CONIF,RW,THS_M3,OVBK,BE         :          :   ...    :     :     :
+2                CONIF,RW,THS_M3,OVBK,BG   3119.76    3388.24   ...    :     :     :
+3                CONIF,RW,THS_M3,OVBK,CH   3578.45    3327.63   ...    :     :     :
+4                CONIF,RW,THS_M3,OVBK,CY         :          :   ...    :     :     :
+...                                  ...        ...        ...  ...   ...   ...   ...
+1183       TOTAL,RW_IN_PW,THS_M3,UNBK,RO   1386.11    1072.06   ...    :     :     :
+1184       TOTAL,RW_IN_PW,THS_M3,UNBK,SE    31500 p     31300   ...    :     :     :
+1185       TOTAL,RW_IN_PW,THS_M3,UNBK,SI    796.13     961.49   ...    :     :     :
+1186       TOTAL,RW_IN_PW,THS_M3,UNBK,SK   2984.49    3351.12   ...    :     :     :
+1187       TOTAL,RW_IN_PW,THS_M3,UNBK,UK         :    1794.97   ...    :     :     :
+
+[1188 rows x 34 columns]
+#+end_example
+
 
 #+begin_example
      treespec,prod_wd,unit,bark,geo\time      2020       2019       2018       2017   ...   1992  1991  1990  1989  1988
@@ -75,6 +93,9 @@ are separated by comma, while the other columns were separated by tab.
 df.columns[0]
 #+end_src
 
+#+RESULTS:
+: treespec,prod_wd,unit,bark,geo\time
+
 
 : treespec,prod_wd,unit,bark,geo\time
 
@@ -90,6 +111,24 @@ Which I will now split by the ',' character to turn it into separate columns.
 #+begin_src python
 df.iloc[:,0].str.split(',', expand=True)
 #+end_src
+
+#+RESULTS:
+#+begin_example
+          0         1       2     3   4
+0     CONIF        RW  THS_M3  OVBK  AT
+1     CONIF        RW  THS_M3  OVBK  BE
+2     CONIF        RW  THS_M3  OVBK  BG
+3     CONIF        RW  THS_M3  OVBK  CH
+4     CONIF        RW  THS_M3  OVBK  CY
+...     ...       ...     ...   ...  ..
+1183  TOTAL  RW_IN_PW  THS_M3  UNBK  RO
+1184  TOTAL  RW_IN_PW  THS_M3  UNBK  SE
+1185  TOTAL  RW_IN_PW  THS_M3  UNBK  SI
+1186  TOTAL  RW_IN_PW  THS_M3  UNBK  SK
+1187  TOTAL  RW_IN_PW  THS_M3  UNBK  UK
+
+[1188 rows x 5 columns]
+#+end_example
 
 
 #+begin_example
@@ -127,6 +166,24 @@ df2.columns = df.columns[0].split(',')
 df2
 #+end_src
 
+#+RESULTS:
+#+begin_example
+     treespec   prod_wd    unit  bark geo\time
+0       CONIF        RW  THS_M3  OVBK       AT
+1       CONIF        RW  THS_M3  OVBK       BE
+2       CONIF        RW  THS_M3  OVBK       BG
+3       CONIF        RW  THS_M3  OVBK       CH
+4       CONIF        RW  THS_M3  OVBK       CY
+...       ...       ...     ...   ...      ...
+1183    TOTAL  RW_IN_PW  THS_M3  UNBK       RO
+1184    TOTAL  RW_IN_PW  THS_M3  UNBK       SE
+1185    TOTAL  RW_IN_PW  THS_M3  UNBK       SI
+1186    TOTAL  RW_IN_PW  THS_M3  UNBK       SK
+1187    TOTAL  RW_IN_PW  THS_M3  UNBK       UK
+
+[1188 rows x 5 columns]
+#+end_example
+
 
 #+begin_example
      treespec   prod_wd    unit  bark geo\time
@@ -153,11 +210,15 @@ df[df2.columns]=df2
 df = df.iloc[:,1:]
 #+end_src
 
+#+RESULTS:
+
 The last column 'geo\time' has a slash in it which I dont like.
 
 #+begin_src python
 df = df.rename(columns={'geo\\time': 'location'})
 #+end_src
+
+#+RESULTS:
 
 One good thing to check is how many rows I have for each country:
 
@@ -256,3 +317,15 @@ df[df['location']=='NL']
 The different rows represent changes in the columns treespec, prod_wd, bark.
 I will have to look on the website to find what these columns represent. Later
 I might be able to aggregate all rows into 1 row per country.
+
+UNBK underbark
+OVBK overbark
+
+|----------+-------------------------------|
+| RW       | Roundwood (wood in the rough) |
+| RW_FW    | Fuelwood (including charcoal) |
+| RW_IN    | Industrial roundwood          |
+| RW_IN_LG | Sawlogs & Veneerlogs          |
+| RW_IN_O  | Pulpwood, round and split     |
+| RW_IN_PW | Other industrial roundwood    |
+|----------+-------------------------------|
