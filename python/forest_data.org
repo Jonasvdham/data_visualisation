@@ -17,21 +17,243 @@
 #+OPTIONS: toc:nil
 :END:
 
+* Introduction
+
+This short document outlines some steps that I go through in cleaning up a
+dataset to make it easier to use. The file I am using is downloaded from [[https://ec.europa.eu/eurostat/en/web/products-datasets/-/FOR_REMOV][here]].
+It's a .tsv (tab separated values) file which you can open in Excel or another
+spreadsheet program to have a first look. Below I load it into Python to clean
+it up.
 
 * Imports
 
 #+begin_src python :results none
 import pandas as pd
 import numpy as np
-from datetime import datetime
-import matplotlib.pyplot as plt
-import seaborn as sns
+#from datetime import datetime
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 #+end_src
 
-* Introduction
+* Forest dataset
 
-source: https://ec.europa.eu/eurostat/en/web/products-datasets/-/FOR_REMOV
-- https://ec.europa.eu/eurostat/databrowser/view/FOR_REMOV/default/table?lang=en&category=for.for_rpt.for_rptr
-#+begin_src python :results none
+Again, the source: https://ec.europa.eu/eurostat/en/web/products-datasets/-/FOR_REMOV
+I download the file and load it into Python (specifying '\t' as the separator
+since it uses tabs. For csv you would use sep=',')
+
+#+begin_src python
 df = pd.read_csv("~/data_visualisation/data/for_remov.tsv", sep='\t')
+df
 #+end_src
+
+#+RESULTS:
+#+begin_example
+     treespec,prod_wd,unit,bark,geo\time      2020       2019       2018       2017   ...   1992  1991  1990  1989  1988
+0                CONIF,RW,THS_M3,OVBK,AT  15619.84   17893.93   17963.23   16346.24   ...      :     :     :     :     :
+1                CONIF,RW,THS_M3,OVBK,BE         :          :          :          :   ...      :     :     :     :     :
+2                CONIF,RW,THS_M3,OVBK,BG   3119.76    3388.24    4233.26    3297.95   ...      :     :     :     :     :
+3                CONIF,RW,THS_M3,OVBK,CH   3578.45    3327.63    3854.32    3225.91   ...      :     :     :     :     :
+4                CONIF,RW,THS_M3,OVBK,CY         :          :          :          :   ...      :     :     :     :     :
+...                                  ...        ...        ...        ...        ...  ...     ...   ...   ...   ...   ...
+1183       TOTAL,RW_IN_PW,THS_M3,UNBK,RO   1386.11    1072.06    1089.76     968.55   ...   2540     :     :     :     :
+1184       TOTAL,RW_IN_PW,THS_M3,UNBK,SE    31500 p     31300      30812      30400   ...  24500     :     :     :     :
+1185       TOTAL,RW_IN_PW,THS_M3,UNBK,SI    796.13     961.49    1003.24     907.94   ...    195     :     :     :     :
+1186       TOTAL,RW_IN_PW,THS_M3,UNBK,SK   2984.49    3351.12    3676.63     3634.2   ...   1817     :     :     :     :
+1187       TOTAL,RW_IN_PW,THS_M3,UNBK,UK         :    1794.97    1735.13    1596.12   ...   2425     :     :     :     :
+
+[1188 rows x 34 columns]
+#+end_example
+
+We are left with a table of 1188 rows by 34 columns, but the first thing I
+notice is that the first column contains multiple fields, i.e. it's not split
+correctly.
+
+Printing only the fist column I see that it includes multiple variables which
+are separated by comma, while the other columns were separated by tab.
+
+#+begin_src python
+df.columns[0]
+#+end_src
+
+#+RESULTS:
+: treespec,prod_wd,unit,bark,geo\time
+
+I can show the first column as follows:
+
+#+begin_src python
+df.iloc[:,0]
+#+end_src
+
+Which I will now split by the ',' character to turn it into separate columns.
+
+
+#+begin_src python
+df.iloc[:,0].str.split(',', expand=True)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+          0         1       2     3   4
+0     CONIF        RW  THS_M3  OVBK  AT
+1     CONIF        RW  THS_M3  OVBK  BE
+2     CONIF        RW  THS_M3  OVBK  BG
+3     CONIF        RW  THS_M3  OVBK  CH
+4     CONIF        RW  THS_M3  OVBK  CY
+...     ...       ...     ...   ...  ..
+1183  TOTAL  RW_IN_PW  THS_M3  UNBK  RO
+1184  TOTAL  RW_IN_PW  THS_M3  UNBK  SE
+1185  TOTAL  RW_IN_PW  THS_M3  UNBK  SI
+1186  TOTAL  RW_IN_PW  THS_M3  UNBK  SK
+1187  TOTAL  RW_IN_PW  THS_M3  UNBK  UK
+
+[1188 rows x 5 columns]
+#+end_example
+
+The column names of this new dataframe I can take from the original column of
+the old dataframe:
+
+#+begin_src python
+df.columns[0].split(',')
+#+end_src
+
+#+RESULTS:
+| treespec | prod_wd | unit | bark | geo\time |
+
+Together, I put these into a new DataFrame (df2)
+
+#+begin_src python
+df2 = df.iloc[:,0].str.split(',', expand=True)
+df2.columns = df.columns[0].split(',')
+df2
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     treespec   prod_wd    unit  bark geo\time
+0       CONIF        RW  THS_M3  OVBK       AT
+1       CONIF        RW  THS_M3  OVBK       BE
+2       CONIF        RW  THS_M3  OVBK       BG
+3       CONIF        RW  THS_M3  OVBK       CH
+4       CONIF        RW  THS_M3  OVBK       CY
+...       ...       ...     ...   ...      ...
+1183    TOTAL  RW_IN_PW  THS_M3  UNBK       RO
+1184    TOTAL  RW_IN_PW  THS_M3  UNBK       SE
+1185    TOTAL  RW_IN_PW  THS_M3  UNBK       SI
+1186    TOTAL  RW_IN_PW  THS_M3  UNBK       SK
+1187    TOTAL  RW_IN_PW  THS_M3  UNBK       UK
+
+[1188 rows x 5 columns]
+#+end_example
+
+Now I can append the two dataframes (df1, df2) together to get a full dataframe
+of all data that I want.
+
+#+begin_src python
+df[df2.columns]=df2
+df = df.iloc[:,1:]
+#+end_src
+
+The last column 'geo\time' has a slash in it which I dont like.
+
+#+begin_src python
+df = df.rename(columns={'geo\\time': 'location'})
+#+end_src
+
+One good thing to check is how many rows I have for each country:
+
+#+begin_src python
+df['location'].value_counts()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+AT           36
+BE           36
+UK           36
+SK           36
+SI           36
+SE           36
+RO           36
+PT           36
+PL           36
+NO           36
+NL           36
+MT           36
+LV           36
+LU           36
+LT           36
+LI           36
+IT           36
+IS           36
+IE           36
+BG           36
+CH           36
+CY           36
+CZ           36
+DE           36
+DK           36
+EE           36
+EL           36
+ES           36
+FI           36
+FR           36
+HR           36
+HU           36
+EU27_2020    18
+EU28         18
+Name: location, dtype: int64
+#+end_example
+
+Each country has multiple entries, let's look at what these entries represent
+by looking at all entries for one specific country:
+
+#+begin_src python
+df[df['location']=='NL']
+#+end_src
+
+#+RESULTS:
+#+begin_example
+         2020      2019      2018      2017      2016     2015   ... 1988  treespec   prod_wd    unit  bark location
+23    1021.54   1073.72   1063.97   1120.54     834.6      820   ...    :     CONIF        RW  THS_M3  OVBK       NL
+57    863.42 e    905.3    901.91       957    703.22      690   ...    :     CONIF        RW  THS_M3  UNBK       NL
+89      473.9     481.1       486       458       159      159   ...    :     CONIF     RW_FW  THS_M3  OVBK       NL
+123   417.02 e    423.3       434       420       140      140   ...    :     CONIF     RW_FW  THS_M3  UNBK       NL
+155    547.64    592.62    577.97    662.54     675.6      661   ...    :     CONIF     RW_IN  THS_M3  OVBK       NL
+189     446.4       482    467.91    536.56    563.22      550   ...    :     CONIF     RW_IN  THS_M3  UNBK       NL
+221    191.42    214.93    224.91    276.58     369.4    362.1   ...    :     CONIF  RW_IN_LG  THS_M3  OVBK       NL
+255    154.4 e      174    181.52    223.35    299.53    292.8   ...    :     CONIF  RW_IN_LG  THS_M3  UNBK       NL
+287     43.04     47.92      19.7     17.36       9.7       10   ...    :     CONIF   RW_IN_O  THS_M3  OVBK       NL
+321     36.6 e       41     16.28     14.44      8.09      8.4   ...    :     CONIF   RW_IN_O  THS_M3  UNBK       NL
+353    313.18    329.78    333.36     368.6     296.5    288.9   ...    :     CONIF  RW_IN_PW  THS_M3  OVBK       NL
+387    255.4 e      267    270.11    298.77     255.6    248.8   ...    :     CONIF  RW_IN_PW  THS_M3  UNBK       NL
+419    2396.5   2464.91   2526.38    2442.5      1792   1776.9   ...    :    NCONIF        RW  THS_M3  OVBK       NL
+453   2102.5 e   2162.4   2242.49      2194   1568.25   1555.7   ...    :    NCONIF        RW  THS_M3  UNBK       NL
+485    2143.7    2161.8      2178      2112      1429     1429   ...    :    NCONIF     RW_FW  THS_M3  OVBK       NL
+519   1886.5 e   1902.4      1944      1912      1257     1257   ...    :    NCONIF     RW_FW  THS_M3  UNBK       NL
+551     252.8    303.11    348.38     330.5       363    347.9   ...    :    NCONIF     RW_IN  THS_M3  OVBK       NL
+585       216       260    298.49    282.33    311.25    298.7   ...    :    NCONIF     RW_IN  THS_M3  UNBK       NL
+617      70.2     83.69    120.85    106.59     108.6    108.2   ...    :    NCONIF  RW_IN_LG  THS_M3  OVBK       NL
+651     60.1 e       72    103.87     91.59     92.53     92.9   ...    :    NCONIF  RW_IN_LG  THS_M3  UNBK       NL
+683     11.12     13.54      7.63      7.72       5.1      5.3   ...    :    NCONIF   RW_IN_O  THS_M3  OVBK       NL
+717      9.3 e       11      6.51      5.56      4.61      4.6   ...    :    NCONIF   RW_IN_O  THS_M3  UNBK       NL
+749    171.47    205.88    219.89    216.19     249.3    234.4   ...    :    NCONIF  RW_IN_PW  THS_M3  OVBK       NL
+783    146.6 e      177    188.12    185.18     214.1    201.2   ...    :    NCONIF  RW_IN_PW  THS_M3  UNBK       NL
+815   3418.03   3540.34   3590.35   3563.04   3733.38   2596.9   ...    :     TOTAL        RW  THS_M3  OVBK       NL
+849   2965.92    3067.7   3144.41   3150.89      3253   2245.7   ...    :     TOTAL        RW  THS_M3  UNBK       NL
+881    2617.6    2642.9      2664      2570   2577.12     1588   ...    :     TOTAL     RW_FW  THS_M3  OVBK       NL
+915   2303.52    2325.7      2378      2332      2301     1397   ...    :     TOTAL     RW_FW  THS_M3  UNBK       NL
+947    800.43    897.44    926.35    993.04   1156.26   1008.9   ...    :     TOTAL     RW_IN  THS_M3  OVBK       NL
+981     662.4       742    766.41    818.89       952    848.7   ...    :     TOTAL     RW_IN  THS_M3  UNBK       NL
+1013   261.62    298.61    345.76    383.16    471.64    470.3   ...    :     TOTAL  RW_IN_LG  THS_M3  OVBK       NL
+1047    214.5       246    285.39    314.93       386    385.7   ...    :     TOTAL  RW_IN_LG  THS_M3  UNBK       NL
+1079    54.17     61.46     27.34     25.08     24.91     15.3   ...    :     TOTAL   RW_IN_O  THS_M3  OVBK       NL
+1113     45.9        52     22.79        20        21       13   ...    :     TOTAL   RW_IN_O  THS_M3  UNBK       NL
+1145   484.65    537.37    553.25    584.79    659.71    523.3   ...    :     TOTAL  RW_IN_PW  THS_M3  OVBK       NL
+1179      402       444    458.23    483.96       545      450   ...    :     TOTAL  RW_IN_PW  THS_M3  UNBK       NL
+
+[36 rows x 38 columns]
+#+end_example
+
+The different rows represent changes in the columns treespec, prod_wd, bark.
+I will have to look on the website to find what these columns represent. Later
+I might be able to aggregate all rows into 1 row per country.

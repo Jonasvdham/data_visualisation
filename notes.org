@@ -1,0 +1,46 @@
+#+TITLE: Notes
+#+AUTHOR: Jonas van der Ham | MSc MADE
+#+EMAIL: Jonasvdham@gmail.com
+#+DATE: Wednesday, 20 April 2022
+#+STARTUP: showall
+#+PROPERTY: header-args :exports both :session notes :cache no
+:PROPERTIES:
+#+OPTIONS: ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [logo, color, author]
+#+LATEX_HEADER: \insertauthor
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[style=ieee, citestyle=numeric-comp, isbn=false]{biblatex}
+#+LATEX_HEADER: \addbibresource{~/made/bibliography/references.bib}
+#+LATEX_HEADER: \setminted{bgcolor=WhiteSmoke}
+#+OPTIONS: toc:nil
+:END:
+
+* Deliverables meeting
+
+** DONE Street dataset (joppe?) - nope
+
+- Added stakeholder
+
+** JavaScript
+- Still possible
+- Step aside on mondays
+
+** Wood dataset
+https://www.madelivinglabs.com/2021-2022
+
+2 living labs: circular urban wood / bomen nu?
+
+Talk to other circular wood people to see if they can come to the sessions
+- friday 29 -> most important
+- wednesday 4 -> final demo
+
+** Objectives
+- further JS
+- Polish final products
+- Introduction to Javascript Lecture (5-10 min)
+- Aim: Stakeholder involvement
+
+** Ideas
+- Python + Dash to combine with JS?
