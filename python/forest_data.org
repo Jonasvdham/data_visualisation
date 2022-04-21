@@ -48,18 +48,18 @@ df
 
 #+RESULTS:
 #+begin_example
-     treespec,prod_wd,unit,bark,geo\time      2020       2019   ... 1990  1989  1988
-0                CONIF,RW,THS_M3,OVBK,AT  15619.84   17893.93   ...    :     :     :
-1                CONIF,RW,THS_M3,OVBK,BE         :          :   ...    :     :     :
-2                CONIF,RW,THS_M3,OVBK,BG   3119.76    3388.24   ...    :     :     :
-3                CONIF,RW,THS_M3,OVBK,CH   3578.45    3327.63   ...    :     :     :
-4                CONIF,RW,THS_M3,OVBK,CY         :          :   ...    :     :     :
-...                                  ...        ...        ...  ...   ...   ...   ...
-1183       TOTAL,RW_IN_PW,THS_M3,UNBK,RO   1386.11    1072.06   ...    :     :     :
-1184       TOTAL,RW_IN_PW,THS_M3,UNBK,SE    31500 p     31300   ...    :     :     :
-1185       TOTAL,RW_IN_PW,THS_M3,UNBK,SI    796.13     961.49   ...    :     :     :
-1186       TOTAL,RW_IN_PW,THS_M3,UNBK,SK   2984.49    3351.12   ...    :     :     :
-1187       TOTAL,RW_IN_PW,THS_M3,UNBK,UK         :    1794.97   ...    :     :     :
+     treespec,prod_wd,unit,bark,geo\time      2020       2019       2018       2017   ...   1992  1991  1990  1989  1988
+0                CONIF,RW,THS_M3,OVBK,AT  15619.84   17893.93   17963.23   16346.24   ...      :     :     :     :     :
+1                CONIF,RW,THS_M3,OVBK,BE         :          :          :          :   ...      :     :     :     :     :
+2                CONIF,RW,THS_M3,OVBK,BG   3119.76    3388.24    4233.26    3297.95   ...      :     :     :     :     :
+3                CONIF,RW,THS_M3,OVBK,CH   3578.45    3327.63    3854.32    3225.91   ...      :     :     :     :     :
+4                CONIF,RW,THS_M3,OVBK,CY         :          :          :          :   ...      :     :     :     :     :
+...                                  ...        ...        ...        ...        ...  ...     ...   ...   ...   ...   ...
+1183       TOTAL,RW_IN_PW,THS_M3,UNBK,RO   1386.11    1072.06    1089.76     968.55   ...   2540     :     :     :     :
+1184       TOTAL,RW_IN_PW,THS_M3,UNBK,SE    31500 p     31300      30812      30400   ...  24500     :     :     :     :
+1185       TOTAL,RW_IN_PW,THS_M3,UNBK,SI    796.13     961.49    1003.24     907.94   ...    195     :     :     :     :
+1186       TOTAL,RW_IN_PW,THS_M3,UNBK,SK   2984.49    3351.12    3676.63     3634.2   ...   1817     :     :     :     :
+1187       TOTAL,RW_IN_PW,THS_M3,UNBK,UK         :    1794.97    1735.13    1596.12   ...   2425     :     :     :     :
 
 [1188 rows x 34 columns]
 #+end_example
@@ -104,6 +104,22 @@ I can show the first column as follows:
 #+begin_src python
 df.iloc[:,0]
 #+end_src
+
+#+RESULTS:
+#+begin_example
+0             CONIF,RW,THS_M3,OVBK,AT
+1             CONIF,RW,THS_M3,OVBK,BE
+2             CONIF,RW,THS_M3,OVBK,BG
+3             CONIF,RW,THS_M3,OVBK,CH
+4             CONIF,RW,THS_M3,OVBK,CY
+                    ...
+1183    TOTAL,RW_IN_PW,THS_M3,UNBK,RO
+1184    TOTAL,RW_IN_PW,THS_M3,UNBK,SE
+1185    TOTAL,RW_IN_PW,THS_M3,UNBK,SI
+1186    TOTAL,RW_IN_PW,THS_M3,UNBK,SK
+1187    TOTAL,RW_IN_PW,THS_M3,UNBK,UK
+Name: treespec,prod_wd,unit,bark,geo\time, Length: 1188, dtype: object
+#+end_example
 
 Which I will now split by the ',' character to turn it into separate columns.
 
@@ -154,6 +170,9 @@ the old dataframe:
 #+begin_src python
 df.columns[0].split(',')
 #+end_src
+
+#+RESULTS:
+| treespec | prod_wd | unit | bark | geo\time |
 
 
 | treespec | prod_wd | unit | bark | geo\time |
@@ -329,3 +348,20 @@ OVBK overbark
 | RW_IN_O  | Pulpwood, round and split     |
 | RW_IN_PW | Other industrial roundwood    |
 |----------+-------------------------------|
+
+
+Maike Simmes <maike.simmes@ams-institute.org>
+Urban mining - long shot but might have data on use of wood in
+
+Gabriel -> dataset wood?
+
+yannick
+
+
+
+
+* Javascript
+
+- time aspect, animate? timeline?
+- information is beautiful
+  get inspired now
