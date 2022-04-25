@@ -30,10 +30,10 @@ it up.
 #+begin_src python :results none
 import pandas as pd
 import numpy as np
-#from datetime import datetime
-#import matplotlib.pyplot as plt
-#import seaborn as sns
-#+end_src
+from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+#+End_src
 
 * Forest dataset
 
@@ -349,16 +349,23 @@ OVBK overbark
 | RW_IN_PW | Other industrial roundwood    |
 |----------+-------------------------------|
 
+#+begin_src python :results show
+fig = plt.figure()
+ax = fig.add_axes([0,0,1,1])
+ax.bar(df.columns[:-5], np.array(df.replace(': ', '0').iloc[815,:-5]))
+plt.show()
+#+end_src
 
-Maike Simmes <maike.simmes@ams-institute.org>
-Urban mining - long shot but might have data on use of wood in
+#+RESULTS:
+: None
 
-Gabriel -> dataset wood?
+* Trade flows data
 
-yannick
+#+begin_src python
+tf = pd.read_csv("~/data_visualisation/data/Forestry_Trade_Flows_E_All_Data.csv", sep=',', encoding='latin-1')
+#+end_src
 
-
-
+#+RESULTS:
 
 * Javascript
 
