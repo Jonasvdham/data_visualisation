@@ -11,7 +11,7 @@
         <option value='export'>export</option>
     </select>
 
-    <div v-if="worldData != null && exportData != null">
+    <div v-if="worldData != null && exportData != null && importData != null && tradeFlowsForestProd != null">
     <svg :width="width" :height="height">
         <path
             v-for="feature in worldData.features"
@@ -20,7 +20,15 @@
             :fill="fillColor(feature.properties.ISO_A3)"
             >
         </path>
-
+        <path
+            v-for="feature in tradeFlowsForestProd"
+            :key="feature.partnerISO3"
+            :d="generateLink(feature)"
+            :fill="'none'"
+            :stroke="linkStyle.stroke"
+            :strokeWidth="linkStyle.strokeWidth"
+        >
+        </path>
     </svg>
     </div>
 </template>
@@ -33,10 +41,15 @@ export default {
         worldData: null,
         exportData: null,
         importData: null,
+        tradeFlows: null,
+        tradeFlowsForestProd: null,
         dataType: 'import',
         year: 2020,
         width: 1000,
-        height: 800
+        height: 800,
+        link: {type: "LineString", coordinates: [[100, 60], [-60, -30]]},
+        linkStyle: {fill: "grey", stroke: "orange", strokeWidth: "100"},
+        test: "test"
     }),
     mounted() {
         json("./data/world.geojson").then(data => {
@@ -48,6 +61,12 @@ export default {
         })
         csv("./data/imports.csv").then(data => {
             this.importData = data
+        })
+        // csv("./data/forestry_tradeflows_full.csv").then(data => {
+        //     this.tradeFlows = data.slice(0,10)
+        // })
+        csv("./data/forestry_tradeflows_forestproducts.csv").then(data => {
+            this.tradeFlowsForestProd = data.slice(0,10)
         })
     },
     computed: {
@@ -68,7 +87,7 @@ export default {
                 return interpolateRgb("black", "red")(value/4532171)
             }
             else {
-                value = this.filterData(country, 'ISO3', this.importData)
+                value = this.filterData(country, 'ISO3', this.exportData)
                 return interpolateRgb("black", "blue")(value/4532171)
             }
             
@@ -80,6 +99,19 @@ export default {
                 }
             }
             return 0;
+        },
+        generateLink(feature) {
+            var d = this.getPathForFeature(
+                {
+                    type: "LineString",
+                    coordinates: [
+                        [feature.reporter_lat, feature.reporter_lat],
+                        [feature.partner_lat, feature.partner_lat]
+                        ]
+                }
+            )
+            console.log(d)
+            return d
         }
     }
 }

@@ -30,7 +30,19 @@ it up.
 ** Data
 - [[https://www.fao.org/forestry/statistics/84922/en/][FAOStat forestry trade]]
 ** Visualisations
+*** Using
+- connection map
+  https://d3-graph-gallery.com/graph/connectionmap_basic.html
+
+
+*** Inspo
 - [[https://observablehq.com/@joewdavies/mapping-with-pie-charts-most-common-causes-of-death-in-europ][Map with pie charts per country]]
+- Voronoi airports
+  https://bl.ocks.org/mbostock/7608400
+  https://observablehq.com/@d3/u-s-airports-voronoi
+- flight paths edge bundling
+  https://bl.ocks.org/sjengle/2e58e83685f6d854aa40c7bc546aeb24
+- using d3js to create beautiful webmaps
 
 * Imports
 
@@ -41,6 +53,106 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 #+End_src
+
+* Trade flows data
+
+Source: https://www.resourcepanel.org/global-material-flows-database
+
+#+begin_src python
+tf = pd.read_csv("~/data_visualisation/data/Forestry_Trade_Flows_E_All_Data.csv", sep=',', encoding='latin-1')
+for col in tf.columns:
+    if (col[0] == 'Y') or (col[-1] == 'F'):
+        tf = tf.rename(columns={col: col[1:]})
+#+end_src
+
+NANS everywhere, so I'll leave out the 'F' columns.
+
+#+begin_src python
+tf = tf[[col for col in tf.columns if col[-1]!='F']]
+#+end_src
+
+#+RESULTS:
+
+#+begin_src python :results none
+tf = tf[['Reporter Countries',
+       'Partner Countries', 'Item', 'Element',
+       'Unit', '1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004',
+       '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013',
+       '2014', '2015', '2016', '2017']]
+#+end_src
+
+
+#+begin_src python :results none
+tf[tf['Item']=='Forest products (export/import)']
+#+end_src
+
+I add in ISO codes instead of country names from [[https://www.fao.org/nocs/en/][here]]
+
+#+begin_src python :results none
+isocodes = pd.read_csv("~/data_visualisation/data/faoiso.csv", sep=';')
+dict = {}
+for index, row in isocodes.iterrows():
+    dict[row['LIST NAME']]  = row['ISO3']
+#+end_src
+
+#+begin_src python :results none
+tf['reporterISO3'] = tf['Reporter Countries'].map(dict)
+tf['partnerISO3'] = tf['Partner Countries'].map(dict)
+tf = tf.dropna(axis=0, subset=['reporterISO3'])
+tf = tf.dropna(axis=0, subset=['partnerISO3'])
+#+end_src
+
+The available wood types:
+
+|-------------------------------------------------------------------|
+| Forest products (export/import)                                   |
+| Plywood                                                           |
+| Paper and paperboard, excluding newsprint                         |
+| Industrial roundwood, non-coniferous non-tropical (export/import) |
+| Sawnwood, coniferous                                              |
+| Veneer sheets                                                     |
+| Newsprint                                                         |
+| Fibreboard                                                        |
+| Industrial roundwood, coniferous (export/import)                  |
+| Sawnwood, non-coniferous all                                      |
+| Wood pulp                                                         |
+| Industrial roundwood, non-coniferous tropical (export/import)     |
+| Wood chips and particles                                          |
+|-------------------------------------------------------------------|
+
+Still not sure which I should use, I'm guessing I can use Forest products as an
+aggregate. Perhaps just give an option on the map for now to choose between the
+different types and later classify these types (with the help of an expert) as
+more or less sustainable/circular. Then could aggregate into more meaningful
+statistics.
+
+Add coordinates for centroids:
+https://gist.githubusercontent.com/tadast/8827699/raw/f5cac3d42d16b78348610fc4ec301e9234f82821/countries_codes_and_coordinates.csv
+
+#+begin_src python :results none
+coordinates = pd.read_csv("~/data_visualisation/data/countries_codes_and_coordinates.csv")
+for col in coordinates.columns:
+    coordinates[col] = coordinates[col].str.replace(' ', '')
+    coordinates[col] = coordinates[col].str.replace('"', '')
+
+dict2 = {}
+for index, row in coordinates.iterrows():
+    dict2[row['Alpha-3 code']+'_lat']  = row['Latitude (average)']
+    dict2[row['Alpha-3 code']+'_lon']  = row['Longitude (average)']
+
+tf['reporter_lat'] = (tf['reporterISO3']+'_lat').map(dict2)
+tf['reporter_lon'] = (tf['reporterISO3']+'_lon').map(dict2)
+tf['partner_lat'] = (tf['reporterISO3']+'_lat').map(dict2)
+tf['partner_lon'] = (tf['reporterISO3']+'_lon').map(dict2)
+#+end_src
+
+#+begin_src python :results none
+tf.to_csv("~/data_visualisation/data/forestry_tradeflows_full.csv")
+(tf[tf['Item']=='Forest products (export/import)']).to_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv")
+tf.to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_tradeflows_full.csv")
+(tf[tf['Item']=='Forest products (export/import)']).to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_tradeflows_forestproducts.csv")
+#+end_src
+
 
 * Forest dataset
 
@@ -366,15 +478,6 @@ plt.show()
 #+RESULTS:
 : None
 
-* Trade flows data
-
-Source: https://www.resourcepanel.org/global-material-flows-database
-
-#+begin_src python
-tf = pd.read_csv("~/data_visualisation/data/Forestry_Trade_Flows_E_All_Data.csv", sep=',', encoding='latin-1')
-#+end_src
-
-#+RESULTS:
 
 * FAOstat data
 
@@ -428,3 +531,10 @@ imex[imex['Element']=='Export Value'].to_csv("~/data_visualisation/data/exports.
 - time aspect, animate? timeline?
 - information is beautiful
   get inspired now
+
+
+** TODO MyMap
+
+- Add default values for 'min' / 'max' to interpolate between.
+  Recalculate when data is chosen.
+- Fix reporter/partner lat/lon
