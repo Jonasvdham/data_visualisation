@@ -49,7 +49,6 @@ export default {
         height: 800,
         link: {type: "LineString", coordinates: [[100, 60], [-60, -30]]},
         linkStyle: {fill: "grey", stroke: "orange", strokeWidth: "100"},
-        test: "test"
     }),
     mounted() {
         json("./data/world.geojson").then(data => {
@@ -105,11 +104,15 @@ export default {
                 {
                     type: "LineString",
                     coordinates: [
-                        [feature.reporter_lat, feature.reporter_lat],
-                        [feature.partner_lat, feature.partner_lat]
+                        [feature.reporter_lon, feature.reporter_lat],
+                        [feature.partner_lon, feature.partner_lat]
                         ]
                 }
             )
+            console.log([
+                        [feature.reporter_lon, feature.reporter_lat],
+                        [feature.partner_lon, feature.partner_lat]
+                        ])
             console.log(d)
             return d
         }

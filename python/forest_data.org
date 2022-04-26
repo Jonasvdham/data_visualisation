@@ -129,6 +129,7 @@ statistics.
 Add coordinates for centroids:
 https://gist.githubusercontent.com/tadast/8827699/raw/f5cac3d42d16b78348610fc4ec301e9234f82821/countries_codes_and_coordinates.csv
 
+
 #+begin_src python :results none
 coordinates = pd.read_csv("~/data_visualisation/data/countries_codes_and_coordinates.csv")
 for col in coordinates.columns:
@@ -139,11 +140,14 @@ dict2 = {}
 for index, row in coordinates.iterrows():
     dict2[row['Alpha-3 code']+'_lat']  = row['Latitude (average)']
     dict2[row['Alpha-3 code']+'_lon']  = row['Longitude (average)']
+#+end_src
 
+
+#+begin_src python :results none
 tf['reporter_lat'] = (tf['reporterISO3']+'_lat').map(dict2)
 tf['reporter_lon'] = (tf['reporterISO3']+'_lon').map(dict2)
-tf['partner_lat'] = (tf['reporterISO3']+'_lat').map(dict2)
-tf['partner_lon'] = (tf['reporterISO3']+'_lon').map(dict2)
+tf['partner_lat'] = (tf['partnerISO3']+'_lat').map(dict2)
+tf['partner_lon'] = (tf['partnerISO3']+'_lon').map(dict2)
 #+end_src
 
 #+begin_src python :results none
