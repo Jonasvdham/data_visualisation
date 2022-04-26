@@ -368,9 +368,13 @@ plt.show()
 
 * Trade flows data
 
+Source: https://www.resourcepanel.org/global-material-flows-database
+
 #+begin_src python
 tf = pd.read_csv("~/data_visualisation/data/Forestry_Trade_Flows_E_All_Data.csv", sep=',', encoding='latin-1')
 #+end_src
+
+#+RESULTS:
 
 * FAOstat data
 
