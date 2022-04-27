@@ -25,24 +25,6 @@ It's a .tsv (tab separated values) file which you can open in Excel or another
 spreadsheet program to have a first look. Below I load it into Python to clean
 it up.
 
-* Ideas
-
-** Data
-- [[https://www.fao.org/forestry/statistics/84922/en/][FAOStat forestry trade]]
-** Visualisations
-*** Using
-- connection map
-  https://d3-graph-gallery.com/graph/connectionmap_basic.html
-
-
-*** Inspo
-- [[https://observablehq.com/@joewdavies/mapping-with-pie-charts-most-common-causes-of-death-in-europ][Map with pie charts per country]]
-- Voronoi airports
-  https://bl.ocks.org/mbostock/7608400
-  https://observablehq.com/@d3/u-s-airports-voronoi
-- flight paths edge bundling
-  https://bl.ocks.org/sjengle/2e58e83685f6d854aa40c7bc546aeb24
-- using d3js to create beautiful webmaps
 
 * Imports
 
@@ -157,7 +139,11 @@ tf.to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_trad
 (tf[tf['Item']=='Forest products (export/import)']).to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_tradeflows_forestproducts.csv")
 #+end_src
 
+** Net values
 
+#+begin_src python :results none
+net = pd.read_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv", index_col=0)
+#+end_src
 * Forest dataset
 
 Again, the source: https://ec.europa.eu/eurostat/en/web/products-datasets/-/FOR_REMOV
@@ -541,4 +527,33 @@ imex[imex['Element']=='Export Value'].to_csv("~/data_visualisation/data/exports.
 
 - Add default values for 'min' / 'max' to interpolate between.
   Recalculate when data is chosen.
-- Fix reporter/partner lat/lon
+
+* Ideas
+For both these ideas it might be an idea to think of net im/export
+** Animation
+- Per country how imports to that country have changed over the years
+(i.e. lines change in thickness over the years)
+** Interactive
+- clickable countries to show in/export to that country over the years
+** Net animation
+- animation of changing net values over the years per country
+
+
+** Data
+- [[https://www.fao.org/forestry/statistics/84922/en/][FAOStat forestry trade]]
+-
+** Visualisations
+*** Using
+- connection map
+  https://d3-graph-gallery.com/graph/connectionmap_basic.html
+
+
+*** Inspo
+- [[https://observablehq.com/@joewdavies/mapping-with-pie-charts-most-common-causes-of-death-in-europ][Map with pie charts per country]]
+- Voronoi airports
+  https://bl.ocks.org/mbostock/7608400
+  https://observablehq.com/@d3/u-s-airports-voronoi
+- flight paths edge bundling
+  https://bl.ocks.org/sjengle/2e58e83685f6d854aa40c7bc546aeb24
+- using d3js to create beautiful webmaps
+*
