@@ -142,7 +142,49 @@ tf.to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_trad
 ** Net values
 
 #+begin_src python :results none
-net = pd.read_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv", index_col=0)
+tf = pd.read_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv", index_col=0)
+
+net = tf[['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']]
+
+imp = 1*(tf['Element']=='Import Value')
+imp = imp.replace(0, -1)
+
+for col in net.columns:
+    net[col] = net[col].multiply(imp, fill_value=0)
+
+net[['country', 'ISO3', 'lat', 'lon']] = tf[['Reporter Countries', 'reporterISO3', 'reporter_lat', 'reporter_lon']]
+
+aggdict = {
+'1997': 'sum',
+'1998': 'sum',
+'1999': 'sum',
+'2000': 'sum',
+'2001': 'sum',
+'2002': 'sum',
+'2003': 'sum',
+'2004': 'sum',
+'2005': 'sum',
+'2006': 'sum',
+'2007': 'sum',
+'2008': 'sum',
+'2009': 'sum',
+'2010': 'sum',
+'2011': 'sum',
+'2012': 'sum',
+'2013': 'sum',
+'2014': 'sum',
+'2015': 'sum',
+'2016': 'sum',
+'2017': 'sum',
+'ISO3': 'first',
+'lat': 'first',
+'lon': 'first',
+}
+
+net = net.groupby('country').agg(aggdict)
+
+net.to_csv("~/data_visualisation/data/netflows.csv")
+net.to_csv("~/data_visualisation/javascript/hello-world/public/data/netflows.csv")
 #+end_src
 * Forest dataset
 
