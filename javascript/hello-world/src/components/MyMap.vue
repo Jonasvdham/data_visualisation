@@ -1,4 +1,9 @@
 <template>
+    <center>
+    <div class="p-5 text-center bg-light">
+        <h1 class="mb-3">Trade flows in and out of Afghanistan</h1>
+    </div>
+    </center>
     <select v-model='year'>
         <option value=2020>2020</option>
         <option value=2010>2010</option>
@@ -10,7 +15,7 @@
         <option value='import'>import</option>
         <option value='export'>export</option>
     </select>
-
+    <center>
     <div v-if="worldData != null && exportData != null && importData != null && tradeFlowsForestProd != null">
     <svg :width="width" :height="height">
         <path
@@ -31,6 +36,7 @@
         </path>
     </svg>
     </div>
+    </center>
 </template>
 
 <script>
