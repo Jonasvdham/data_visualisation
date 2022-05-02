@@ -141,6 +141,7 @@ tf.to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_trad
 
 ** Net values
 
+*** 1 value per country
 #+begin_src python :results none
 tf = pd.read_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv", index_col=0)
 
@@ -196,6 +197,89 @@ for i in ['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005'
     minmax[i] = {'min': net[i].min(), 'max': net[i].max()}
 for i in minmax:
     print(i, minmax[i])
+#+end_src
+
+*** all values per country
+
+#+begin_src python :results none
+imex = pd.read_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv", index_col=0)
+
+#net = imex
+years = ['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']
+
+imp = 1*(imex['Element']=='Import Value')
+imp = imp.replace(0, -1)
+
+for col in years:
+     imex[col] = imex[col].multiply(imp, fill_value=0)
+
+imex = imex.drop(columns=['Item', 'Element', 'Unit'])
+
+aggdict = {
+'1997': 'sum',
+'1998': 'sum',
+'1999': 'sum',
+'2000': 'sum',
+'2001': 'sum',
+'2002': 'sum',
+'2003': 'sum',
+'2004': 'sum',
+'2005': 'sum',
+'2006': 'sum',
+'2007': 'sum',
+'2008': 'sum',
+'2009': 'sum',
+'2010': 'sum',
+'2011': 'sum',
+'2012': 'sum',
+'2013': 'sum',
+'2014': 'sum',
+'2015': 'sum',
+'2016': 'sum',
+'2017': 'sum',
+'reporterISO3': 'first',
+'partnerISO3': 'first',
+'reporter_lat': 'first',
+'reporter_lon': 'first',
+'partner_lat': 'first',
+'partner_lon': 'first'
+}
+
+imex = imex.groupby(['Reporter Countries', 'Partner Countries']).agg(aggdict)
+imex = imex.reset_index()
+#+end_src
+
+
+
+#+begin_src python :results none
+import json
+
+json_dict = {}
+
+for iso in imex['reporterISO3'].unique()[:3]:
+     json_dict[iso] = {}
+     for year in years:
+          json_dict[iso][year] = {}
+     for i, row in imex[imex['reporterISO3']==iso].iterrows():
+          for year in years:
+               if row[year] != 0:
+                    json_dict[iso][year][row['partnerISO3']] = {
+                         'name': row['Partner Countries'],
+                         'lat': row['partner_lat'],
+                         'lon': row['partner_lon'],
+                         'imex': row[year]
+                    }
+     json_dict[iso]['lat'] = imex[imex['reporterISO3']==iso].iloc[0]['reporter_lat']
+     json_dict[iso]['lon'] = imex[imex['reporterISO3']==iso].iloc[0]['reporter_lon']
+     json_dict[iso]['country'] = imex[imex['reporterISO3']==iso].iloc[0]['Reporter Countries']
+
+json_object = json.dumps(json_dict, indent = 4)
+with open("/home/jonas/data_visualisation/data/imexflows.json", "w") as outfile:
+    outfile.write(json_object)
+
+#imex.to_json("~/data_visualisation/javascript/hello-world/public/data/imexflows.json", orient='index')
+#imex.to_csv("~/data_visualisation/data/imexflows.csv")
+#imex.to_csv("~/data_visualisation/javascript/hello-world/public/data/imexflows.csv")
 #+end_src
 * Forest dataset
 
