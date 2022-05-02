@@ -43,7 +43,7 @@ Source: https://www.resourcepanel.org/global-material-flows-database
 #+begin_src python
 tf = pd.read_csv("~/data_visualisation/data/Forestry_Trade_Flows_E_All_Data.csv", sep=',', encoding='latin-1')
 for col in tf.columns:
-    if (col[0] == 'Y') or (col[-1] == 'F'):
+    if (col[0] == 'Y'):
         tf = tf.rename(columns={col: col[1:]})
 #+end_src
 
