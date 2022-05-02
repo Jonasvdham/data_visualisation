@@ -23,6 +23,8 @@
             :key="feature.properties.ADM0_A3"
             :d="getPathForFeature(feature)"
             :fill="fillColor(feature.properties.ISO_A3)"
+            @mouseover="hover = feature.properties.ADM0_A3"
+            @mouseleave="hover = null"
             >
         </path>
         <path
@@ -49,6 +51,7 @@ export default {
         importData: null,
         tradeFlows: null,
         tradeFlowsForestProd: null,
+        hover: null,
         dataType: 'import',
         year: 2020,
         width: 1000,
@@ -59,7 +62,6 @@ export default {
     mounted() {
         json("./data/world.geojson").then(data => {
             this.worldData = data
-            console.log(this.worldData)
         })
         csv("./data/exports.csv").then(data => {
             this.exportData = data
@@ -115,11 +117,6 @@ export default {
                         ]
                 }
             )
-            console.log([
-                        [feature.reporter_lon, feature.reporter_lat],
-                        [feature.partner_lon, feature.partner_lat]
-                        ])
-            console.log(d)
             return d
         }
     }

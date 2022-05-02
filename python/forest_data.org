@@ -183,8 +183,19 @@ aggdict = {
 
 net = net.groupby('country').agg(aggdict)
 
-net.to_csv("~/data_visualisation/data/netflows.csv")
-net.to_csv("~/data_visualisation/javascript/hello-world/public/data/netflows.csv")
+
+# To JSON
+#net.reset_index().set_index('ISO3').to_json("~/data_visualisation/javascript/hello-world/public/data/netflows.json", orient='index')
+#net.to_csv("~/data_visualisation/data/netflows.csv")
+#net.to_csv("~/data_visualisation/javascript/hello-world/public/data/netflows.csv")
+#+end_src
+
+#+begin_src python :results none
+minmax = {}
+for i in ['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']:
+    minmax[i] = {'min': net[i].min(), 'max': net[i].max()}
+for i in minmax:
+    print(i, minmax[i])
 #+end_src
 * Forest dataset
 
@@ -579,6 +590,9 @@ For both these ideas it might be an idea to think of net im/export
 - clickable countries to show in/export to that country over the years
 ** Net animation
 - animation of changing net values over the years per country
+** Trade flows
+1 country in and out
+different colour for import/export - thickness for magnitude
 
 
 ** Data
@@ -598,4 +612,23 @@ For both these ideas it might be an idea to think of net im/export
 - flight paths edge bundling
   https://bl.ocks.org/sjengle/2e58e83685f6d854aa40c7bc546aeb24
 - using d3js to create beautiful webmaps
-*
+
+** 2-5-22
+
+*** Presentation
+- Programming: Uses and Annoyances
+You can do a lot of great things with programming but it can also make your
+life quite a lot harder. Steep learning curve at the beginning can be very
+daunting. How to tackle this? It takes some excitement, years of practice and
+perseverance.
++ Making your life easier
+Get to know your tools and the tools that are out there. If you are pursuing
+this, you will be spending a lot of time behind the computer, so best to make
+your time effective.
+- bla
+
+- Getting back to visualising: Final touches
+- JavaScript: Case Study
+  + Web programming: HTML, CSS, JavaScript
+  + VUE JavaScript framework
+  + Interactive nature

@@ -445,31 +445,6 @@
         "type": "Polygon",
         "coordinates": [
           [
-            [19.9185, 60.3702],
-            [20.2776, 60.2787],
-            [20.0064, 60.0944],
-            [19.7476, 60.1014],
-            [19.9185, 60.3702]
-          ]
-        ]
-      },
-      "properties": {
-        "NAME": "Aland",
-        "NAME_LONG": "Aland Islands",
-        "ADM0_A3": "ALD",
-        "ISO_A2": "AX",
-        "ISO_A3": "ALA",
-        "WB_A2": "-99",
-        "WB_A3": "-99"
-      },
-      "id": 5
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
             [1.707, 42.5028],
             [1.4479, 42.4346],
             [1.4293, 42.5954],
