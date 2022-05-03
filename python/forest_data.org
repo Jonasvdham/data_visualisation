@@ -193,8 +193,17 @@ net = net.groupby('country').agg(aggdict)
 
 #+begin_src python :results none
 minmax = {}
+minimum = 0
+maximum = 0
 for i in ['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']:
-    minmax[i] = {'min': net[i].min(), 'max': net[i].max()}
+    min_i = imex[['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']][i].min()
+    max_i = imex[['1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']][i].max()
+    if min_i < minimum:
+        minimum = min_i
+    if max_i > maximum:
+        maximum = max_i
+    minmax[i] = {'min': min_i, 'max': max_i}
+    print(minmax[i])
 for i in minmax:
     print(i, minmax[i])
 #+end_src
@@ -260,6 +269,7 @@ for iso in imex['reporterISO3'].unique():
      json_dict[iso] = {}
      for year in years:
           json_dict[iso][year] = {}
+          json_dict[iso][year]['minimum'] = []
      for i, row in imex[imex['reporterISO3']==iso].iterrows():
           for year in years:
                if row[year] != 0:
@@ -273,14 +283,20 @@ for iso in imex['reporterISO3'].unique():
      json_dict[iso]['lon'] = imex[imex['reporterISO3']==iso].iloc[0]['reporter_lon']
      json_dict[iso]['country'] = imex[imex['reporterISO3']==iso].iloc[0]['Reporter Countries']
 
-json_object = json.dumps(json_dict, indent = 4)
-with open("/home/jonas/data_visualisation/data/imexflows.json", "w") as outfile:
-    outfile.write(json_object)
+# json_object = json.dumps(json_dict, indent = 4)
+# with open("/home/jonas/data_visualisation/data/imexflows.json", "w") as outfile:
+#     outfile.write(json_object)
 
 #imex.to_json("~/data_visualisation/javascript/hello-world/public/data/imexflows.json", orient='index')
 #imex.to_csv("~/data_visualisation/data/imexflows.csv")
 #imex.to_csv("~/data_visualisation/javascript/hello-world/public/data/imexflows.csv")
 #+end_src
+
+#+begin_src python :results none
+newA = dict(sorted(A.iteritems(), key=operator.itemgetter(1), reverse=True)[:5])
+#+end_src
+
+
 * Forest dataset
 
 Again, the source: https://ec.europa.eu/eurostat/en/web/products-datasets/-/FOR_REMOV
