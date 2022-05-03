@@ -1,34 +1,45 @@
 <template>
     <div class="p-5 text-center bg-light">
-        <h1 class="mb-3">Net import/export per country</h1>
+        <center>
+        <h1 class="mb-3">Net wood import/export per country (x1000$)</h1>
+        </center>
     </div>
+    <div id='grad'>
+        <div style="float: left; width: 15%; height: auto; line-height: 40px; vertical-align: middle; font-family: Verdana; font-size: 10px; overflow: hidden; text-align: center; color: white;">
+            <b><span v-html="min"></span></b>
+        </div>
+        <div style="float: right; width: 15%; height: auto; line-height: 40px; vertical-align: middle; font-family: Verdana; font-size: 10px; overflow: hidden; text-align: center; color: white;">
+            <b><span v-html="max"></span></b>
+        </div>
+    </div>
+
     <div v-if="worldData != null && netFlowsData != null && imexFlowsData != null">
-    <svg class='map' :width="width" :height="height">
-        <text x="0" y="50" font-family="Verdana (sans-serif)" font-weight="bold" font-size="20pt" dy="0.35em">{{year}}</text>
-        <path
-            @mouseover="hover = feature.properties.ISO_A3"
-            @mouseleave="hover = null"
-            class='country'
-            v-for="feature in worldData.features"
-            :key="feature.properties.ADM0_A3"
-            :d="getPathForFeature(feature)"
-            :fill="fillColor(feature.properties.ISO_A3)"
-            >
-        </path>
-        <template v-if="hover != null && imexFlowsData[hover] != null">
-            <template v-if="imexFlowsData[hover][year] != null">
-                <path
-                v-for="feature in imexFlowsData[hover][year]"
-                :key="feature.ISO3"
-                :d="generateLink(feature)"
-                :fill="'none'"
-                :stroke="linkStyle.stroke"
-                :strokeWidth="linkStyle.strokeWidth"
+        <svg class='map' :width="width" :height="height">
+            <text class="year" x="180" y="80" font-family="Verdana (sans-serif)" font-weight="bold" font-size="20pt" dy="0.35em">{{year}}</text>
+            <path
+                @mouseover="hover = feature.properties.ISO_A3"
+                @mouseleave="hover = null"
+                class='country'
+                v-for="feature in worldData.features"
+                :key="feature.properties.ADM0_A3"
+                :d="getPathForFeature(feature)"
+                :fill="fillColor(feature.properties.ISO_A3)"
                 >
-                </path>
+            </path>
+            <template v-if="hover != null && imexFlowsData[hover] != null">
+                <template v-if="year in imexFlowsData[hover]">
+                    <path
+                    v-for="feature in imexFlowsData[hover][year]"
+                    :key="feature.ISO3"
+                    :d="generateLink(feature)"
+                    :fill="'none'"
+                    :stroke="linkStyle.stroke"
+                    :stroke-width="generateWidth(feature)"
+                    >
+                    </path>
+                </template>
             </template>
-        </template>
-    </svg>
+        </svg>
     </div>
 </template>
 
@@ -44,14 +55,14 @@ export default {
         hover: null,
         dataType: 'import',
         year: 2017,
-        width: 1000,
-        height: 800,
+        width: 1400,
+        height: 960,
         min: -18278800.0,
         max: 18278800.0,
         yearList: [1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017],
         yearIndex: 0,
         link: {type: "LineString", coordinates: [[100, 60], [-60, -30]]},
-        linkStyle: {fill: "grey", stroke: "orange", strokeWidth: "100"}
+        linkStyle: {fill: "grey", stroke: "orange", strokeWidth: 7}
     }),
     
     mounted() {
@@ -65,7 +76,7 @@ export default {
             console.log(data)
             this.imexFlowsData = data
         })
-        setInterval(() => this.updateYear(), 3000)
+        setInterval(() => this.updateYear(), 2000)
     },
     computed: {
         projection() {
@@ -79,11 +90,21 @@ export default {
                 .projection(this.projection)(feature)
         },
         fillColor(country) {
-            if (this.hover != null) {
-                return '#999999'
+            if (this.hover != null) {                
+                if (country == this.hover) {
+                    return 'black'
+                } else if (this.imexFlowsData[this.hover] == null) {
+                    return '#999999'
+                } else if (!(this.year in this.imexFlowsData[this.hover])){
+                    return '#999999'
+                }
+                else {
+                    return country in this.imexFlowsData[this.hover][this.year] ? this.generateColor(this.netFlowsData[country][this.year])
+                    : '#999999'
+                }
             } else {
                 return (
-                    country in this.netFlowsData ? this.generateColor(this.netFlowsData[country][String(this.year)])
+                    country in this.netFlowsData ? this.generateColor(this.netFlowsData[country][this.year])
                     : '#999999'
                 )
             }
@@ -91,21 +112,10 @@ export default {
         generateColor(value) {
             // - t / (this.minmax[this.year]['max'] - this.minmax[this.year]['min']
             // console.log(Math.log(value-this.min)+1)
-            return interpolateBrBG((value-this.min)/(this.max-this.min))
-        },
-        filterData(name, data, year) {
-            for (let i = 0; i < data.length; i++) {
-                if (data[i]['ISO3'] == name){
-                    return data[i][year];
-                }
-            }
-            return 0;
+            //console.log(interpolateBrBG(0), interpolateBrBG(0.5), interpolateBrBG(1))
+            return interpolateBrBG(1-(value-this.min)/(this.max-this.min))
         },
         updateYear() {
-            if (this.hover != null) {
-                //console.log(this.hover)
-                //console.log(this.imexFlowsData[String(this.hover)])
-            }
             if (this.yearIndex == (this.yearList.length - 1)) {
                 this.yearIndex = 0
                 this.year = 2017
@@ -115,6 +125,7 @@ export default {
             }
         },
         generateLink(feature) {
+            //if (this.imexFlowsData[this.hover]['imex'] > 0):
             var d = this.getPathForFeature(
                 {
                     type: "LineString",
@@ -125,6 +136,16 @@ export default {
                 }
             )
             return d
+        },
+        generateWidth(feature) {
+            var val = 100*feature.imex / this.max
+            if (val < 1) {
+                return 1
+            } else if (val > 10) {
+                return 10
+            } else {
+                return val
+            }
         }
     }
 }
@@ -133,8 +154,26 @@ export default {
 <style>
     h1, h2 {
         font-family: 'Trebuchet MS', sans-serif;
+        color: white;
     }
     .country {
         transition: 1s fill ease;
     }
+    .year {
+        fill: white;
+    }
+    #grad {
+        height: 40px;
+        width: 800px;
+        background-color: red; /* For browsers that do not support gradients */
+        background-image: linear-gradient(to right, rgb(84, 48, 5), rgb(238, 241, 234), rgb(0, 60, 48));
+        /* background-image: linear-gradient(to right, rgb(84, 48, 5) rgb(238, 241, 234) rgb(0, 60, 48)); */
+        /*linear-gradient(to right, var(--min_color), var(--max_color));*/
+        padding: 0;
+        margin: auto;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px; 
+}
 </style>
