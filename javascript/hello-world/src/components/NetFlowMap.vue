@@ -19,16 +19,18 @@
             :fill="fillColor(feature.properties.ISO_A3)"
             >
         </path>
-        <template v-if="hover != null && imexFlowsData[hover] != null && imexFlowsData[hover][year] != null">
-            <path
-            v-for="feature in imexFlowsData[hover][year]"
-            :key="feature.ISO3"
-            :d="generateLink(feature)"
-            :fill="'none'"
-            :stroke="linkStyle.stroke"
-            :strokeWidth="linkStyle.strokeWidth"
-            >
-            </path>
+        <template v-if="hover != null && imexFlowsData[hover] != null">
+            <template v-if="imexFlowsData[hover][year] != null">
+                <path
+                v-for="feature in imexFlowsData[hover][year]"
+                :key="feature.ISO3"
+                :d="generateLink(feature)"
+                :fill="'none'"
+                :stroke="linkStyle.stroke"
+                :strokeWidth="linkStyle.strokeWidth"
+                >
+                </path>
+            </template>
         </template>
     </svg>
     </div>
@@ -68,7 +70,7 @@ export default {
             console.log(data)
             this.imexFlowsData = data
         })
-        setInterval(() => this.updateYear(), 2000)
+        setInterval(() => this.updateYear(), 3000)
     },
     computed: {
         projection() {
@@ -106,7 +108,8 @@ export default {
         },
         updateYear() {
             console.log(this.hover)
-            console.log(this.imexFlowsData[this.hover])
+            console.log(this.imexFlowsData[String(this.hover)])
+            console.log(Object.keys(this.imexFlowsData))
             if (this.yearIndex == (this.yearList.length - 1)) {
                 this.yearIndex = 0
                 this.year = 2017
@@ -122,8 +125,8 @@ export default {
                 {
                     type: "LineString",
                     coordinates: [
-                        [this.imexFlowsData['AFG']['lat'], this.imexFlowsData['AFG']['lon']],
-                        [feature.lat, feature.lon]
+                        [this.imexFlowsData[this.hover]['lon'], this.imexFlowsData[this.hover]['lat']],
+                        [feature.lon, feature.lat]
                         ]
                 }
             )

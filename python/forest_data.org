@@ -256,7 +256,7 @@ import json
 
 json_dict = {}
 
-for iso in imex['reporterISO3'].unique()[:3]:
+for iso in imex['reporterISO3'].unique():
      json_dict[iso] = {}
      for year in years:
           json_dict[iso][year] = {}
@@ -716,3 +716,12 @@ your time effective.
   + Web programming: HTML, CSS, JavaScript
   + VUE JavaScript framework
   + Interactive nature
+
+
+*** TODO
+- background darker
+- flip color pallette
+- make top 10 range
+- highlight imex partners
+- LEGEND
+- mix max stay the same
