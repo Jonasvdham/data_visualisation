@@ -1,8 +1,4 @@
 <template>
-    <!-- <select v-model='dataType'>
-        <option value='import'>import</option>
-        <option value='export'>export</option>
-    </select> -->
     <div class="p-5 text-center bg-light">
         <h1 class="mb-3">Net import/export per country</h1>
     </div>
@@ -65,7 +61,7 @@ export default {
         json("./data/netflows.json").then(data => {
             this.netFlowsData = data
         })
-        json("./data/imexflows.json").then(data => {
+        json("./data/imexflows_top10.json").then(data => {
             console.log(data)
             this.imexFlowsData = data
         })
@@ -106,9 +102,10 @@ export default {
             return 0;
         },
         updateYear() {
-            console.log(this.hover)
-            console.log(this.imexFlowsData[String(this.hover)])
-            console.log(Object.keys(this.imexFlowsData))
+            if (this.hover != null) {
+                //console.log(this.hover)
+                //console.log(this.imexFlowsData[String(this.hover)])
+            }
             if (this.yearIndex == (this.yearList.length - 1)) {
                 this.yearIndex = 0
                 this.year = 2017

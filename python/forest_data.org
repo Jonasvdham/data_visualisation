@@ -269,7 +269,6 @@ for iso in imex['reporterISO3'].unique():
      json_dict[iso] = {}
      for year in years:
           json_dict[iso][year] = {}
-          json_dict[iso][year]['minimum'] = []
      for i, row in imex[imex['reporterISO3']==iso].iterrows():
           for year in years:
                if row[year] != 0:
@@ -292,8 +291,30 @@ for iso in imex['reporterISO3'].unique():
 #imex.to_csv("~/data_visualisation/javascript/hello-world/public/data/imexflows.csv")
 #+end_src
 
+In the end I only use top 10 for each country for visibility
 #+begin_src python :results none
-newA = dict(sorted(A.iteritems(), key=operator.itemgetter(1), reverse=True)[:5])
+new_dict = {}
+for country, value in json_dict.items():
+    new_dict[country] = {}
+    new_dict[country]['lat'] = json_dict[country]['lat']
+    new_dict[country]['lon'] = json_dict[country]['lon']
+    new_dict[country]['country'] = json_dict[country]['country']
+    for year, partners in value.items():
+        if year in json_dict[country].keys() and year.isnumeric():
+            new_dict[country][year] = {}
+            partnerlist=[partner for partner in (json_dict[country][year]).items()]
+            maxlist = sorted(partnerlist[1:], key=lambda x: x[1]['imex'], reverse=True)[:5]
+            for combination in maxlist:
+                if combination[1] != []:
+                    new_dict[country][year][combination[0]] = combination[1]
+                else:
+                    print(1)
+
+new_json_object = json.dumps(new_dict, indent = 4)
+with open("/home/jonas/data_visualisation/data/imexflows_top10.json", "w") as outfile:
+    outfile.write(new_json_object)
+with open("/home/jonas/data_visualisation/javascript/hello-world/public/data/imexflows_top10.json", "w") as outfile:
+    outfile.write(new_json_object)
 #+end_src
 
 
