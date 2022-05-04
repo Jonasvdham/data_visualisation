@@ -5,17 +5,20 @@
         </center>
     </div>
     <div id='grad'>
-        <div style="float: left; width: 15%; height: auto; line-height: 40px; vertical-align: middle; font-family: Verdana; font-size: 10px; overflow: hidden; text-align: center; color: white;">
+        <div style="float: left; width: 15%; height: auto; line-height: 30px; vertical-align: middle; font-family: Verdana; font-size: 10px; overflow: hidden; text-align: center; color: white;">
             <b><span v-html="min"></span></b>
         </div>
-        <div style="float: right; width: 15%; height: auto; line-height: 40px; vertical-align: middle; font-family: Verdana; font-size: 10px; overflow: hidden; text-align: center; color: white;">
+        <div style="float: right; width: 15%; height: auto; line-height: 30px; vertical-align: middle; font-family: Verdana; font-size: 10px; overflow: hidden; text-align: center; color: white;">
             <b><span v-html="max"></span></b>
         </div>
     </div>
-
+    <center>
     <div v-if="worldData != null && netFlowsData != null && imexFlowsData != null">
         <svg class='map' :width="width" :height="height">
             <text class="year" x="180" y="80" font-family="Verdana (sans-serif)" font-weight="bold" font-size="20pt" dy="0.35em">{{year}}</text>
+            <template v-if="hover != null">
+                <text class="year" x="180" y="120" font-family="Verdana (sans-serif)" font-weight="bold" font-size="14pt" dy="0.35em">{{imexFlowsData[hover]['country']}}</text>
+            </template>
             <path
                 @mouseover="hover = feature.properties.ISO_A3"
                 @mouseleave="hover = null"
@@ -41,6 +44,7 @@
             </template>
         </svg>
     </div>
+    </center>
 </template>
 
 <script>
@@ -163,7 +167,7 @@ export default {
         fill: white;
     }
     #grad {
-        height: 40px;
+        height: 30px;
         width: 800px;
         background-color: red; /* For browsers that do not support gradients */
         background-image: linear-gradient(to right, rgb(84, 48, 5), rgb(238, 241, 234), rgb(0, 60, 48));
@@ -171,9 +175,9 @@ export default {
         /*linear-gradient(to right, var(--min_color), var(--max_color));*/
         padding: 0;
         margin: auto;
-        border-top-left-radius: 10px;
-        border-bottom-left-radius: 10px;
-        border-top-right-radius: 10px;
-        border-bottom-right-radius: 10px; 
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px; 
 }
 </style>
