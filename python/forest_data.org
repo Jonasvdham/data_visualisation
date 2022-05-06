@@ -135,8 +135,8 @@ tf['partner_lon'] = (tf['partnerISO3']+'_lon').map(dict2)
 #+begin_src python :results none
 tf.to_csv("~/data_visualisation/data/forestry_tradeflows_full.csv")
 (tf[tf['Item']=='Forest products (export/import)']).to_csv("~/data_visualisation/data/forestry_tradeflows_forestproducts.csv")
-tf.to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_tradeflows_full.csv")
-(tf[tf['Item']=='Forest products (export/import)']).to_csv("~/data_visualisation/javascript/hello-world/public/data/forestry_tradeflows_forestproducts.csv")
+tf.to_csv("~/data_visualisation/javascript/forestry_trade/public/data/forestry_tradeflows_full.csv")
+(tf[tf['Item']=='Forest products (export/import)']).to_csv("~/data_visualisation/javascript/forestry_trade/public/data/forestry_tradeflows_forestproducts.csv")
 #+end_src
 
 ** Net values
@@ -186,9 +186,9 @@ net = net.groupby('country').agg(aggdict)
 
 
 # To JSON
-#net.reset_index().set_index('ISO3').to_json("~/data_visualisation/javascript/hello-world/public/data/netflows.json", orient='index')
+#net.reset_index().set_index('ISO3').to_json("~/data_visualisation/javascript/forestry_trade/public/data/netflows.json", orient='index')
 #net.to_csv("~/data_visualisation/data/netflows.csv")
-#net.to_csv("~/data_visualisation/javascript/hello-world/public/data/netflows.csv")
+#net.to_csv("~/data_visualisation/javascript/forestry_trade/public/data/netflows.csv")
 #+end_src
 
 #+begin_src python :results none
@@ -286,9 +286,9 @@ for iso in imex['reporterISO3'].unique():
 # with open("/home/jonas/data_visualisation/data/imexflows.json", "w") as outfile:
 #     outfile.write(json_object)
 
-#imex.to_json("~/data_visualisation/javascript/hello-world/public/data/imexflows.json", orient='index')
+#imex.to_json("~/data_visualisation/javascript/forestry_trade/public/data/imexflows.json", orient='index')
 #imex.to_csv("~/data_visualisation/data/imexflows.csv")
-#imex.to_csv("~/data_visualisation/javascript/hello-world/public/data/imexflows.csv")
+#imex.to_csv("~/data_visualisation/javascript/forestry_trade/public/data/imexflows.csv")
 #+end_src
 
 In the end I only use top 10 for each country for visibility
@@ -313,7 +313,7 @@ for country, value in json_dict.items():
 new_json_object = json.dumps(new_dict, indent = 4)
 with open("/home/jonas/data_visualisation/data/imexflows_top10.json", "w") as outfile:
     outfile.write(new_json_object)
-with open("/home/jonas/data_visualisation/javascript/hello-world/public/data/imexflows_top10.json", "w") as outfile:
+with open("/home/jonas/data_visualisation/javascript/forestry_trade/public/data/imexflows_top10.json", "w") as outfile:
     outfile.write(new_json_object)
 #+end_src
 
