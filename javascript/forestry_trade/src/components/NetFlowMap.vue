@@ -17,7 +17,8 @@
             <div v-if="worldData != null && netFlowsData != null && imexFlowsData != null">
                 <svg class='map' :width="width" :height="height">
                     <text class="year" x="180" y="80" font-family="Verdana (sans-serif)" font-weight="bold" font-size="20pt" dy="0.35em">{{year}}</text>
-                    <template v-if="hover != null">
+                    <template v-if="hover != null && imexFlowsData[hover] != null">
+                        <text class="year" x="180" y="120" font-family="Verdana (sans-serif)" font-weight="bold" font-size="14pt" dy="0.35em">{{hover}}</text>
                         <text class="year" x="180" y="120" font-family="Verdana (sans-serif)" font-weight="bold" font-size="14pt" dy="0.35em">{{imexFlowsData[hover]['country']}}</text>
                     </template>
                     <path
@@ -169,6 +170,9 @@ export default {
     .year {
         fill: white;
     }
+    .lines {
+        pointer-events: none;
+    }
     #grad {
         height: 30px;
         width: 800px;
@@ -182,8 +186,5 @@ export default {
         border-bottom-left-radius: 20px;
         border-top-right-radius: 20px;
         border-bottom-right-radius: 20px; 
-    .lines {
-        pointer-events: none;
     }
-}
 </style>

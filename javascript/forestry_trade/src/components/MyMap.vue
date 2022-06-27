@@ -69,9 +69,6 @@ export default {
         csv("./data/imports.csv").then(data => {
             this.importData = data
         })
-        // csv("./data/forestry_tradeflows_full.csv").then(data => {
-        //     this.tradeFlows = data.slice(0,10)
-        // })
         csv("./data/forestry_tradeflows_forestproducts.csv").then(data => {
             this.tradeFlowsForestProd = data.slice(0,10)
         })
